@@ -95,19 +95,19 @@ export const SecureProductEditForm = ({
 
   const { mutate: updateProduct, isPending } = useMutation({
     mutationFn: async (data: typeof formData) => {
-      // Validation côté client avant envoi
+      // Validation côté client avant envoi - avec truncation si nécessaire
       const validatedData = {
         ...data,
-        name: productNameSchema.parse(data.name),
-        marque: brandSchema.parse(data.marque),
-        categorie: categorySchema.parse(data.categorie),
+        name: productNameSchema.parse(data.name.slice(0, 200)), // Limiter à 200 caractères
+        marque: brandSchema.parse(data.marque.slice(0, 100)), // Limiter à 100 caractères
+        categorie: categorySchema.parse(data.categorie.slice(0, 100)), // Limiter à 100 caractères
         prix: priceSchema.parse(data.prix),
         photo_url: data.photo_url.trim() === '' ? null : imageUrlSchema.parse(data.photo_url),
-        eng: sanitizedTextSchema.parse(data.eng),
-        article: sanitizedTextSchema.parse(data.article),
-        namebic: sanitizedTextSchema.parse(data.namebic),
-        globalcategory: sanitizedTextSchema.parse(data.globalcategory),
-        categorieold: sanitizedTextSchema.parse(data.categorieold),
+        eng: sanitizedTextSchema.parse(data.eng.slice(0, 500)), // Limiter à 500 caractères
+        article: sanitizedTextSchema.parse(data.article.slice(0, 500)), // Limiter à 500 caractères
+        namebic: sanitizedTextSchema.parse(data.namebic.slice(0, 500)), // Limiter à 500 caractères
+        globalcategory: sanitizedTextSchema.parse(data.globalcategory.slice(0, 500)), // Limiter à 500 caractères
+        categorieold: sanitizedTextSchema.parse(data.categorieold.slice(0, 500)), // Limiter à 500 caractères
         marque_id: data.marque_id ? parseInt(data.marque_id.toString()) : null,
       };
 
@@ -145,6 +145,29 @@ export const SecureProductEditForm = ({
   };
 
   const handleInputChange = (field: string, value: string | boolean | number) => {
+    // Limiter la longueur des champs texte avant de les stocker
+    if (typeof value === 'string') {
+      switch (field) {
+        case 'name':
+          value = value.slice(0, 200);
+          break;
+        case 'marque':
+        case 'categorie':
+          value = value.slice(0, 100);
+          break;
+        case 'photo_url':
+          value = value.slice(0, 500);
+          break;
+        case 'eng':
+        case 'article':
+        case 'namebic':
+        case 'globalcategory':
+        case 'categorieold':
+          value = value.slice(0, 500);
+          break;
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -165,7 +188,7 @@ export const SecureProductEditForm = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nom du produit *</Label>
+            <Label htmlFor="name">Nom du produit * ({formData.name.length}/200)</Label>
             <Input
               id="name"
               value={formData.name}
@@ -179,7 +202,7 @@ export const SecureProductEditForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="marque">Marque *</Label>
+            <Label htmlFor="marque">Marque * ({formData.marque.length}/100)</Label>
             <Input
               id="marque"
               value={formData.marque}
@@ -222,7 +245,7 @@ export const SecureProductEditForm = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="photo_url">URL de l'image</Label>
+          <Label htmlFor="photo_url">URL de l'image ({formData.photo_url.length}/500)</Label>
           <Input
             id="photo_url"
             type="url"
@@ -249,11 +272,12 @@ export const SecureProductEditForm = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="categorie">Catégorie *</Label>
+            <Label htmlFor="categorie">Catégorie * ({formData.categorie.length}/100)</Label>
             <Input
               id="categorie"
               value={formData.categorie}
               onChange={(e) => handleInputChange("categorie", e.target.value)}
+              maxLength={100}
               required
             />
             {validationErrors.categorie && (
@@ -262,11 +286,12 @@ export const SecureProductEditForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="categorieold">Ancienne catégorie</Label>
+            <Label htmlFor="categorieold">Ancienne catégorie ({formData.categorieold.length}/500)</Label>
             <Input
               id="categorieold"
               value={formData.categorieold}
               onChange={(e) => handleInputChange("categorieold", e.target.value)}
+              maxLength={500}
             />
             {validationErrors.categorieold && (
               <p className="text-red-500 text-sm">{validationErrors.categorieold}</p>
@@ -274,11 +299,12 @@ export const SecureProductEditForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="globalcategory">Catégorie globale</Label>
+            <Label htmlFor="globalcategory">Catégorie globale ({formData.globalcategory.length}/500)</Label>
             <Input
               id="globalcategory"
               value={formData.globalcategory}
               onChange={(e) => handleInputChange("globalcategory", e.target.value)}
+              maxLength={500}
             />
             {validationErrors.globalcategory && (
               <p className="text-red-500 text-sm">{validationErrors.globalcategory}</p>
@@ -294,11 +320,12 @@ export const SecureProductEditForm = ({
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="article">Article</Label>
+            <Label htmlFor="article">Article ({formData.article.length}/500)</Label>
             <Textarea
               id="article"
               value={formData.article}
               onChange={(e) => handleInputChange("article", e.target.value)}
+              maxLength={500}
               rows={3}
             />
             {validationErrors.article && (
@@ -307,11 +334,12 @@ export const SecureProductEditForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="eng">Description anglaise</Label>
+            <Label htmlFor="eng">Description anglaise ({formData.eng.length}/500)</Label>
             <Textarea
               id="eng"
               value={formData.eng}
               onChange={(e) => handleInputChange("eng", e.target.value)}
+              maxLength={500}
               rows={3}
             />
             {validationErrors.eng && (
@@ -320,11 +348,12 @@ export const SecureProductEditForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="namebic">Nom BIC</Label>
+            <Label htmlFor="namebic">Nom BIC ({formData.namebic.length}/500)</Label>
             <Input
               id="namebic"
               value={formData.namebic}
               onChange={(e) => handleInputChange("namebic", e.target.value)}
+              maxLength={500}
             />
             {validationErrors.namebic && (
               <p className="text-red-500 text-sm">{validationErrors.namebic}</p>
