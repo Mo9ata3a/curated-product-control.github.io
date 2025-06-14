@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -67,11 +66,6 @@ export const SecureProductEditForm = ({
           priceSchema.parse(value);
           break;
         case 'photo_url':
-          // Validation spéciale pour photo_url - permettre vide
-          if (typeof value === 'string' && value.trim() === '') {
-            // URL vide est valide
-            break;
-          }
           imageUrlSchema.parse(value);
           break;
         case 'eng':
