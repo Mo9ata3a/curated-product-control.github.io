@@ -18,9 +18,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
 const productFormSchema = z.object({
-  name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
-  marque: z.string().min(2, { message: "La marque doit contenir au moins 2 caractères." }),
-  categorie: z.string().min(2, { message: "La catégorie doit contenir au moins 2 caractères." }),
+  name: z.string().trim().min(1, { message: "Le nom du produit ne peut pas être vide." }),
+  marque: z.string().trim().min(1, { message: "La marque ne peut pas être vide." }),
+  categorie: z.string().trim().min(1, { message: "La catégorie ne peut pas être vide." }),
   prix: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, { message: "Le prix doit être un nombre positif." }),
   photo_url: z.string().url({ message: "Veuillez entrer une URL d'image valide." }).optional().or(z.literal('')),
   hidden: z.boolean().default(false),
