@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -26,6 +27,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ProductEditForm } from "./ProductEditForm";
 import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
@@ -39,7 +48,9 @@ const ProductTable = ({
 }) => {
   const [page, setPage] = useState(1);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -105,6 +116,17 @@ const ProductTable = ({
   const products = data?.products;
   const count = data?.count ?? 0;
   const pageCount = Math.ceil(count / PAGE_SIZE);
+
+  const handleEditSuccess = () => {
+    onActionSuccess();
+    setIsEditDialogOpen(false);
+    setProductToEdit(null);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    setProductToEdit(null);
+  };
 
   if (isLoading) {
     return (
@@ -213,11 +235,10 @@ const ProductTable = ({
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() =>
-                        toast.info(
-                          "La fonction de modification n'est pas encore disponible."
-                        )
-                      }
+                      onClick={() => {
+                        setProductToEdit(product);
+                        setIsEditDialogOpen(true);
+                      }}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -261,6 +282,27 @@ const ProductTable = ({
           </div>
         </div>
       </Card>
+
+      {/* Dialog de modification */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Modifier le produit</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations du produit "{productToEdit?.name}".
+            </DialogDescription>
+          </DialogHeader>
+          {productToEdit && (
+            <ProductEditForm
+              product={productToEdit}
+              onSuccess={handleEditSuccess}
+              onCancel={handleEditCancel}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de suppression */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
