@@ -995,6 +995,10 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      is_admin: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       mots_en_commun: {
         Args: { article: string; champ2: string }
         Returns: number
