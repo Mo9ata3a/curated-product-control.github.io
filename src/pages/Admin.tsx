@@ -4,6 +4,8 @@ import ProductTable from '@/components/admin/ProductTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -43,6 +45,17 @@ const Admin = () => {
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Rechercher des produits..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
             <ProductTable 
               searchTerm={searchTerm}
               onActionSuccess={handleActionSuccess}
