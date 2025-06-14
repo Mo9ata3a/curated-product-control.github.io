@@ -2,6 +2,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
+import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -35,13 +36,14 @@ const Admin = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Administration</h1>
-          <p className="mt-2 text-gray-600">Gestion des produits et contributions</p>
+          <p className="mt-2 text-gray-600">Gestion sécurisée des produits et contributions</p>
         </div>
 
         <Tabs defaultValue="products" className="space-y-6">
           <TabsList>
             <TabsTrigger value="products">Produits</TabsTrigger>
             <TabsTrigger value="contributions">Contributions</TabsTrigger>
+            <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
@@ -64,6 +66,10 @@ const Admin = () => {
           
           <TabsContent value="contributions" className="space-y-6">
             <ContributionsTable />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <AuditLogViewer />
           </TabsContent>
         </Tabs>
       </div>
