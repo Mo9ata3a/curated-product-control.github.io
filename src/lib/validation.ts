@@ -9,26 +9,8 @@ const ALLOWED_IMAGE_DOMAINS = [
   'cdn.example.com'
 ];
 
-// Schéma de validation pour les URLs d'images - plus permissif
-export const imageUrlSchema = z.union([
-  z.literal(''),
-  z.string()
-    .transform((val) => val.trim())
-    .refine((val) => {
-      // Si c'est vide après trim, c'est valide
-      if (val === '') return true;
-      
-      try {
-        // Vérifier que c'est une URL valide
-        const url = new URL(val);
-        const domain = url.hostname;
-        return ALLOWED_IMAGE_DOMAINS.includes(domain);
-      } catch {
-        // Si ce n'est pas une URL valide, rejeter
-        return false;
-      }
-    }, { message: "L'URL doit être vide ou provenir d'un domaine autorisé (images.unsplash.com, via.placeholder.com, picsum.photos)" })
-]);
+// Schéma de validation pour les URLs d'images - sans validation
+export const imageUrlSchema = z.string().optional();
 
 // Schéma de validation pour les prix
 export const priceSchema = z.string()

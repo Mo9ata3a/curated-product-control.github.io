@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -97,11 +96,7 @@ export const SecureProductEditForm = ({
         marque: brandSchema.parse(data.marque.slice(0, 100)), // Limiter à 100 caractères
         categorie: categorySchema.parse(data.categorie.slice(0, 100)), // Limiter à 100 caractères
         prix: priceSchema.parse(data.prix),
-        photo_url: (() => {
-          const trimmedUrl = data.photo_url.trim();
-          if (trimmedUrl === '') return null;
-          return imageUrlSchema.parse(trimmedUrl);
-        })(),
+        photo_url: data.photo_url.trim() === '' ? null : data.photo_url.trim(),
         eng: sanitizedTextSchema.parse(data.eng.slice(0, 500)), // Limiter à 500 caractères
         article: sanitizedTextSchema.parse(data.article.slice(0, 500)), // Limiter à 500 caractères
         namebic: sanitizedTextSchema.parse(data.namebic.slice(0, 500)), // Limiter à 500 caractères
