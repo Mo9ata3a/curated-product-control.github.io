@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,18 +19,29 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const PAGE_SIZE = 10;
 
-const ProductTable = () => {
+const ProductTable = ({ searchTerm }: { searchTerm: string }) => {
   const [page, setPage] = useState(1);
 
-  const fetchProducts = async (page: number) => {
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
+  const fetchProducts = async (page: number, search: string) => {
     const from = (page - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("products")
       .select("id, name, prix, categorie, marque, hidden, photo_url", {
         count: "exact",
-      })
+      });
+
+    if (search) {
+      const cleanedSearch = search.trim();
+      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%`);
+    }
+
+    const { data, error, count } = await query
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -48,8 +58,9 @@ const ProductTable = () => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["products", page],
-    queryFn: () => fetchProducts(page),
+    queryKey: ["products", page, searchTerm],
+    queryFn: () => fetchProducts(page, searchTerm),
+    placeholderData: (previousData) => previousData,
   });
 
   const products = data?.products;
@@ -134,7 +145,13 @@ const ProductTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.map((product) => (
+            {products?.length === 0 && !isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                  Aucun produit trouvé.
+                </TableCell>
+              </TableRow>
+            ) : products?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell className="px-6">
                   <img
@@ -146,7 +163,7 @@ const ProductTable = () => {
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.marque}</TableCell>
                 <TableCell>{product.categorie}</TableCell>
-                <TableCell>{product.prix}</TableCell>
+                <TableCell>{product.prix ? `${product.prix} €` : '-'}</TableCell>
                 <TableCell>
                   <Badge variant={product.hidden ? "outline" : "default"}>
                     {product.hidden ? "Caché" : "Visible"}
