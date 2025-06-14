@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, AlertTriangle } from "lucide-react";
+import { Edit, Trash2, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -62,13 +62,11 @@ const ProductTable = ({
 
     let query = supabase
       .from("products")
-      .select("id, name, prix, categorie, marque, hidden, photo_url", {
-        count: "exact",
-      });
+      .select("*", { count: "exact" });
 
     if (search) {
       const cleanedSearch = search.trim();
-      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%`);
+      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%,article.ilike.%${cleanedSearch}%`);
     }
 
     const { data, error, count } = await query
@@ -141,6 +139,8 @@ const ProductTable = ({
                 <TableHead>Catégorie</TableHead>
                 <TableHead>Prix</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Ban</TableHead>
+                <TableHead>Global Cat.</TableHead>
                 <TableHead className="text-right px-6">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -150,21 +150,11 @@ const ProductTable = ({
                   <TableCell className="px-6">
                     <Skeleton className="h-10 w-10 rounded-md" />
                   </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-24" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-24" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-6 w-16 rounded-full" />
-                  </TableCell>
+                  {[...Array(7)].map((_, j) => (
+                    <TableCell key={j}>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                  ))}
                   <TableCell className="text-right space-x-2 px-6">
                     <Skeleton className="h-8 w-8 inline-block" />
                     <Skeleton className="h-8 w-8 inline-block" />
@@ -194,73 +184,110 @@ const ProductTable = ({
     <>
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16 px-6">Image</TableHead>
-                <TableHead>Nom</TableHead>
-                <TableHead>Marque</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right px-6">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products?.length === 0 && !isLoading ? (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
-                    Aucun produit trouvé.
-                  </TableCell>
+                  <TableHead className="w-16 px-6">Image</TableHead>
+                  <TableHead className="min-w-[200px]">Nom</TableHead>
+                  <TableHead className="min-w-[120px]">Marque</TableHead>
+                  <TableHead className="min-w-[120px]">Catégorie</TableHead>
+                  <TableHead className="min-w-[100px]">Prix</TableHead>
+                  <TableHead className="min-w-[80px]">Statut</TableHead>
+                  <TableHead className="min-w-[60px]">Ban</TableHead>
+                  <TableHead className="min-w-[120px]">Global Cat.</TableHead>
+                  <TableHead className="min-w-[100px]">Article</TableHead>
+                  <TableHead className="min-w-[100px]">Nom BIC</TableHead>
+                  <TableHead className="min-w-[100px]">Créé le</TableHead>
+                  <TableHead className="text-right px-6 min-w-[120px]">Actions</TableHead>
                 </TableRow>
-              ) : products?.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="px-6">
-                    <img
-                      src={product.photo_url || "https://via.placeholder.com/40"}
-                      alt={product.name || ""}
-                      className="h-10 w-10 object-cover rounded-md"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.marque}</TableCell>
-                  <TableCell>{product.categorie}</TableCell>
-                  <TableCell>{product.prix ? `${product.prix} €` : "-"}</TableCell>
-                  <TableCell>
-                    <Badge variant={product.hidden ? "outline" : "default"}>
-                      {product.hidden ? "Caché" : "Visible"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right space-x-2 px-6">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        setProductToEdit(product);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => {
-                        setProductToDelete(product);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {products?.length === 0 && !isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={12} className="h-24 text-center">
+                      Aucun produit trouvé.
+                    </TableCell>
+                  </TableRow>
+                ) : products?.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="px-6">
+                      <img
+                        src={product.photo_url || "https://via.placeholder.com/40"}
+                        alt={product.name || ""}
+                        className="h-10 w-10 object-cover rounded-md"
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium max-w-[200px] truncate">
+                      {product.name}
+                    </TableCell>
+                    <TableCell className="max-w-[120px] truncate">
+                      {product.marque}
+                    </TableCell>
+                    <TableCell className="max-w-[120px] truncate">
+                      {product.categorie}
+                    </TableCell>
+                    <TableCell>{product.prix ? `${product.prix} €` : "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {product.hidden ? (
+                          <EyeOff className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-green-500" />
+                        )}
+                        <Badge variant={product.hidden ? "outline" : "default"}>
+                          {product.hidden ? "Caché" : "Visible"}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={product.ban ? "destructive" : "secondary"}>
+                        {product.ban ? "Banni" : "OK"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-[120px] truncate">
+                      {product.globalcategory || "-"}
+                    </TableCell>
+                    <TableCell className="max-w-[100px] truncate" title={product.article || ""}>
+                      {product.article || "-"}
+                    </TableCell>
+                    <TableCell className="max-w-[100px] truncate">
+                      {product.namebic || "-"}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {product.created_at ? new Date(product.created_at).toLocaleDateString('fr-FR') : "-"}
+                    </TableCell>
+                    <TableCell className="text-right space-x-2 px-6">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setProductToEdit(product);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => {
+                          setProductToDelete(product);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
         <div className="flex items-center justify-between space-x-2 py-4 px-6 border-t">
           <div className="text-sm text-muted-foreground">
-            Page {page} sur {pageCount}
+            Page {page} sur {pageCount} ({count} produits au total)
           </div>
           <div className="space-x-2">
             <Button
@@ -285,7 +312,7 @@ const ProductTable = ({
 
       {/* Dialog de modification */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Modifier le produit</DialogTitle>
             <DialogDescription>
