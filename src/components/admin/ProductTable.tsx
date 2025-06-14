@@ -7,35 +7,17 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ProductEditForm } from "./ProductEditForm";
+import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { ProductTableHeader } from "./ProductTableHeader";
+import { ProductTableRow } from "./ProductTableRow";
+import { ProductTablePagination } from "./ProductTablePagination";
+import { ProductTableDialogs } from "./ProductTableDialogs";
 
 const PAGE_SIZE = 10;
 
@@ -66,7 +48,7 @@ const ProductTable = ({
 
     if (search) {
       const cleanedSearch = search.trim();
-      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%,article.ilike.%${cleanedSearch}%`);
+      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%,article.ilike.%${cleanedSearch}%,eng.ilike.%${cleanedSearch}%,globalcategory.ilike.%${cleanedSearch}%,namebic.ilike.%${cleanedSearch}%`);
     }
 
     const { data, error, count } = await query
@@ -115,6 +97,16 @@ const ProductTable = ({
   const count = data?.count ?? 0;
   const pageCount = Math.ceil(count / PAGE_SIZE);
 
+  const handleEdit = (product: Product) => {
+    setProductToEdit(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteDialogOpen(true);
+  };
+
   const handleEditSuccess = () => {
     onActionSuccess();
     setIsEditDialogOpen(false);
@@ -126,31 +118,25 @@ const ProductTable = ({
     setProductToEdit(null);
   };
 
+  const handleDeleteConfirm = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete.id);
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
         <CardContent className="p-0">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16 px-6">Image</TableHead>
-                <TableHead>Nom</TableHead>
-                <TableHead>Marque</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Ban</TableHead>
-                <TableHead>Global Cat.</TableHead>
-                <TableHead className="text-right px-6">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
+            <ProductTableHeader />
             <TableBody>
               {[...Array(PAGE_SIZE)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell className="px-6">
                     <Skeleton className="h-10 w-10 rounded-md" />
                   </TableCell>
-                  {[...Array(7)].map((_, j) => (
+                  {[...Array(10)].map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-4 w-20" />
                     </TableCell>
@@ -186,22 +172,7 @@ const ProductTable = ({
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16 px-6">Image</TableHead>
-                  <TableHead className="min-w-[200px]">Nom</TableHead>
-                  <TableHead className="min-w-[120px]">Marque</TableHead>
-                  <TableHead className="min-w-[120px]">Catégorie</TableHead>
-                  <TableHead className="min-w-[100px]">Prix</TableHead>
-                  <TableHead className="min-w-[80px]">Statut</TableHead>
-                  <TableHead className="min-w-[60px]">Ban</TableHead>
-                  <TableHead className="min-w-[120px]">Global Cat.</TableHead>
-                  <TableHead className="min-w-[100px]">Article</TableHead>
-                  <TableHead className="min-w-[100px]">Nom BIC</TableHead>
-                  <TableHead className="min-w-[100px]">Créé le</TableHead>
-                  <TableHead className="text-right px-6 min-w-[120px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+              <ProductTableHeader />
               <TableBody>
                 {products?.length === 0 && !isLoading ? (
                   <TableRow>
@@ -210,149 +181,37 @@ const ProductTable = ({
                     </TableCell>
                   </TableRow>
                 ) : products?.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="px-6">
-                      <img
-                        src={product.photo_url || "https://via.placeholder.com/40"}
-                        alt={product.name || ""}
-                        className="h-10 w-10 object-cover rounded-md"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium max-w-[200px] truncate">
-                      {product.name}
-                    </TableCell>
-                    <TableCell className="max-w-[120px] truncate">
-                      {product.marque}
-                    </TableCell>
-                    <TableCell className="max-w-[120px] truncate">
-                      {product.categorie}
-                    </TableCell>
-                    <TableCell>{product.prix ? `${product.prix} €` : "-"}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {product.hidden ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-green-500" />
-                        )}
-                        <Badge variant={product.hidden ? "outline" : "default"}>
-                          {product.hidden ? "Caché" : "Visible"}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={product.ban ? "destructive" : "secondary"}>
-                        {product.ban ? "Banni" : "OK"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-[120px] truncate">
-                      {product.globalcategory || "-"}
-                    </TableCell>
-                    <TableCell className="max-w-[100px] truncate" title={product.article || ""}>
-                      {product.article || "-"}
-                    </TableCell>
-                    <TableCell className="max-w-[100px] truncate">
-                      {product.namebic || "-"}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {product.created_at ? new Date(product.created_at).toLocaleDateString('fr-FR') : "-"}
-                    </TableCell>
-                    <TableCell className="text-right space-x-2 px-6">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => {
-                          setProductToEdit(product);
-                          setIsEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => {
-                          setProductToDelete(product);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <ProductTableRow
+                    key={product.id}
+                    product={product}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </TableBody>
             </Table>
           </div>
         </CardContent>
-        <div className="flex items-center justify-between space-x-2 py-4 px-6 border-t">
-          <div className="text-sm text-muted-foreground">
-            Page {page} sur {pageCount} ({count} produits au total)
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
-              Précédent
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page + 1)}
-              disabled={page >= pageCount}
-            >
-              Suivant
-            </Button>
-          </div>
-        </div>
+        <ProductTablePagination
+          page={page}
+          pageCount={pageCount}
+          count={count}
+          onPageChange={setPage}
+        />
       </Card>
 
-      {/* Dialog de modification */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Modifier le produit</DialogTitle>
-            <DialogDescription>
-              Modifiez les informations du produit "{productToEdit?.name}".
-            </DialogDescription>
-          </DialogHeader>
-          {productToEdit && (
-            <ProductEditForm
-              product={productToEdit}
-              onSuccess={handleEditSuccess}
-              onCancel={handleEditCancel}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog de suppression */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Le produit "{productToDelete?.name}" sera supprimé définitivement.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isDeleting}
-              onClick={() => {
-                if (productToDelete) {
-                  deleteProduct(productToDelete.id);
-                }
-              }}
-            >
-              {isDeleting ? "Suppression..." : "Supprimer"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ProductTableDialogs
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+        productToEdit={productToEdit}
+        productToDelete={productToDelete}
+        onEditSuccess={handleEditSuccess}
+        onEditCancel={handleEditCancel}
+        onDeleteConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+      />
     </>
   );
 };
