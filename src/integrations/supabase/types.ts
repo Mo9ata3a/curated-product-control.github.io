@@ -1029,6 +1029,15 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          event_type: string
+          table_name: string
+          user_id?: string
+          details?: Json
+        }
+        Returns: undefined
+      }
       mots_en_commun: {
         Args: { article: string; champ2: string }
         Returns: number
