@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -66,6 +67,11 @@ export const SecureProductEditForm = ({
           priceSchema.parse(value);
           break;
         case 'photo_url':
+          // Validation spéciale pour photo_url - permettre vide
+          if (typeof value === 'string' && value.trim() === '') {
+            // URL vide est valide
+            break;
+          }
           imageUrlSchema.parse(value);
           break;
         case 'eng':
@@ -96,7 +102,7 @@ export const SecureProductEditForm = ({
         marque: brandSchema.parse(data.marque),
         categorie: categorySchema.parse(data.categorie),
         prix: priceSchema.parse(data.prix),
-        photo_url: imageUrlSchema.parse(data.photo_url),
+        photo_url: data.photo_url.trim() === '' ? null : imageUrlSchema.parse(data.photo_url),
         eng: sanitizedTextSchema.parse(data.eng),
         article: sanitizedTextSchema.parse(data.article),
         namebic: sanitizedTextSchema.parse(data.namebic),
@@ -223,13 +229,13 @@ export const SecureProductEditForm = ({
             value={formData.photo_url}
             onChange={(e) => handleInputChange("photo_url", e.target.value)}
             maxLength={500}
-            placeholder="https://images.unsplash.com/example.jpg"
+            placeholder="https://images.unsplash.com/example.jpg (optionnel)"
           />
           {validationErrors.photo_url && (
             <p className="text-red-500 text-sm">{validationErrors.photo_url}</p>
           )}
           <p className="text-xs text-gray-500">
-            Domaines autorisés: images.unsplash.com, via.placeholder.com, picsum.photos
+            Domaines autorisés: images.unsplash.com, via.placeholder.com, picsum.photos (ou laisser vide)
           </p>
         </div>
       </div>
