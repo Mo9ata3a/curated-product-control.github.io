@@ -13,7 +13,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import {
   Form,
@@ -35,7 +34,6 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,7 +62,6 @@ const LoginForm = () => {
         description:
           "Vous allez être redirigé vers le panneau d'administration.",
       });
-      navigate("/admin");
     }
     setIsSubmitting(false);
   }
