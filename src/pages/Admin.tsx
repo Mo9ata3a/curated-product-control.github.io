@@ -4,9 +4,17 @@ import ProductTable from '@/components/admin/ProductTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Admin = () => {
   const { session, isAdmin, loading } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const queryClient = useQueryClient();
+
+  const handleActionSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
 
   if (loading) {
     return (
@@ -35,7 +43,10 @@ const Admin = () => {
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
-            <ProductTable />
+            <ProductTable 
+              searchTerm={searchTerm}
+              onActionSuccess={handleActionSuccess}
+            />
           </TabsContent>
           
           <TabsContent value="contributions" className="space-y-6">
