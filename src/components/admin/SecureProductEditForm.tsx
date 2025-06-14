@@ -95,7 +95,7 @@ export const SecureProductEditForm = ({
         name: productNameSchema.parse(data.name.slice(0, 200)), // Limiter à 200 caractères
         marque: brandSchema.parse(data.marque.slice(0, 100)), // Limiter à 100 caractères
         categorie: categorySchema.parse(data.categorie.slice(0, 100)), // Limiter à 100 caractères
-        prix: priceSchema.parse(data.prix),
+        prix: priceSchema.parse(data.prix), // Le schéma fait déjà le trim
         photo_url: data.photo_url.trim() === '' ? null : data.photo_url.trim(),
         eng: sanitizedTextSchema.parse(data.eng.slice(0, 500)), // Limiter à 500 caractères
         article: sanitizedTextSchema.parse(data.article.slice(0, 500)), // Limiter à 500 caractères
@@ -158,6 +158,10 @@ export const SecureProductEditForm = ({
         case 'globalcategory':
         case 'categorieold':
           value = value.slice(0, 500);
+          break;
+        case 'prix':
+          // Nettoyer les espaces pour le prix
+          value = value.trim();
           break;
       }
     }

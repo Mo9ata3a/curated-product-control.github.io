@@ -1,3 +1,4 @@
+
 import * as z from "zod";
 
 // Liste blanche de domaines autorisés pour les URLs d'images
@@ -12,7 +13,7 @@ const ALLOWED_IMAGE_DOMAINS = [
 // Schéma de validation pour les URLs d'images - sans validation
 export const imageUrlSchema = z.string().optional();
 
-// Schéma de validation pour les prix
+// Schéma de validation pour les prix - avec nettoyage des espaces
 export const priceSchema = z.string()
   .transform((val) => val.trim())
   .refine((val) => {
