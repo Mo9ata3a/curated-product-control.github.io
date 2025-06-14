@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -16,11 +16,30 @@ import { Edit, Trash2, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
-const ProductTable = ({ searchTerm }: { searchTerm: string }) => {
+const ProductTable = ({
+  searchTerm,
+  onActionSuccess,
+}: {
+  searchTerm: string;
+  onActionSuccess: () => void;
+}) => {
   const [page, setPage] = useState(1);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -61,6 +80,24 @@ const ProductTable = ({ searchTerm }: { searchTerm: string }) => {
     queryKey: ["products", page, searchTerm],
     queryFn: () => fetchProducts(page, searchTerm),
     placeholderData: (previousData) => previousData,
+  });
+
+  const { mutate: deleteProduct, isPending: isDeleting } = useMutation({
+    mutationFn: async (productId: number) => {
+      const { error } = await supabase.from("products").delete().eq("id", productId);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Produit supprimé avec succès !");
+      onActionSuccess();
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de la suppression : ${error.message}`);
+      setIsDeleteDialogOpen(false);
+    },
   });
 
   const products = data?.products;
@@ -170,10 +207,25 @@ const ProductTable = ({ searchTerm }: { searchTerm: string }) => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right space-x-2 px-6">
-                  <Button variant="outline" size="icon">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() =>
+                      toast.info(
+                        "La fonction de modification n'est pas encore disponible."
+                      )
+                    }
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="destructive" size="icon">
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => {
+                      setProductToDelete(product);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TableCell>

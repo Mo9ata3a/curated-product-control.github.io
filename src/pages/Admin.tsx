@@ -1,4 +1,3 @@
-
 import ProductTable from "@/components/admin/ProductTable";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,11 +31,15 @@ const AdminPage = () => {
     }
   };
 
-  const handleSuccess = () => {
+  const handleFormSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["products"] });
     setIsSheetOpen(false);
   };
-  
+
+  const handleActionSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+  };
+
   return (
     <div className="container mx-auto py-8">
       <header className="flex justify-between items-center mb-6">
@@ -55,7 +58,7 @@ const AdminPage = () => {
                   Remplissez les informations ci-dessous pour créer un produit.
                 </SheetDescription>
               </SheetHeader>
-              <ProductForm onSuccess={handleSuccess} />
+              <ProductForm onSuccess={handleFormSuccess} />
             </SheetContent>
           </Sheet>
           <Button variant="outline" onClick={handleLogout}>
@@ -75,7 +78,7 @@ const AdminPage = () => {
         </div>
       </div>
       <main>
-        <ProductTable searchTerm={searchTerm} />
+        <ProductTable searchTerm={searchTerm} onActionSuccess={handleActionSuccess} />
       </main>
     </div>
   );
