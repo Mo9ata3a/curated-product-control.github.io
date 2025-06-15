@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔍 Checking admin status for user:', userId);
       const { data, error } = await supabase.rpc('is_admin', { p_user_id: userId });
+      console.log('RPC is_admin response:', { data, error });
 
       if (error) {
         console.error('❌ RPC Error:', error);
@@ -54,22 +55,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // onAuthStateChange est appelé à l'initialisation et à chaque changement d'état d'auth.
-    // Cela simplifie la logique en supprimant le besoin de getInitialSession().
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`🔄 Auth event: ${event}`);
-      setLoading(true);
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        await checkAdminStatus(session.user.id);
+        checkAdminStatus(session.user.id).finally(() => {
+          setLoading(false);
+          console.log('✅ Auth check complete.');
+        });
       } else {
         setIsAdmin(false);
+        setLoading(false);
+        console.log('✅ Auth check complete (no user).');
       }
-      
-      setLoading(false);
-      console.log('✅ Auth check complete.');
     });
 
     return () => {
