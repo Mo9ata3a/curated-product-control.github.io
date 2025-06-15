@@ -88,6 +88,19 @@ export const categorySchema = z.string()
   .max(100, { message: "La catégorie ne peut pas dépasser 100 caractères" })
   .transform((val) => sanitizedTextSchema.parse(val));
 
+// Schéma de validation pour bignos
+export const bignosSchema = z.object({
+  name: productNameSchema,
+  marque: brandSchema,
+  categorie: categorySchema,
+  prix: priceSchema,
+  photo_url: imageUrlSchema,
+  article: sanitizedTextSchema,
+  globalcategory: sanitizedTextSchema,
+  namebic: sanitizedTextSchema,
+  categorieold: sanitizedTextSchema,
+});
+
 // Fonction utilitaire pour sanitiser les erreurs - améliorée
 export const sanitizeError = (error: any): string => {
   console.error('Error details:', error); // Log pour debug (côté développeur)

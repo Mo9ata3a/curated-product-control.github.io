@@ -1,11 +1,13 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
+import BignosTable from '@/components/admin/bignos/BignosTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import AccountSettings from '@/components/admin/AccountSettings';
 import UserManagement from '@/components/admin/UserManagement';
 import { SecureProductForm } from '@/components/admin/SecureProductForm';
+import { SecureBignosForm } from '@/components/admin/bignos/SecureBignosForm';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -16,20 +18,32 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
 import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
+import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [bignoSearchTerm, setBignoSearchTerm] = useState('');
   const [isAddProductDialogOpen, setIsAddProductDialogOpen] = useState(false);
+  const [isAddBignoDialogOpen, setIsAddBignoDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleActionSuccess = () => {
+  const handleProductActionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
+  
+  const handleBignoActionSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['bignos'] });
   };
 
   const handleAddProductSuccess = () => {
-    handleActionSuccess();
+    handleProductActionSuccess();
     setIsAddProductDialogOpen(false);
+  };
+  
+  const handleAddBignoSuccess = () => {
+    handleBignoActionSuccess();
+    setIsAddBignoDialogOpen(false);
   };
 
   const handleLogout = async () => {
@@ -66,7 +80,7 @@ const Admin = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Administration</h1>
-            <p className="mt-2 text-gray-600">Gestion sécurisée des produits et contributions</p>
+            <p className="mt-2 text-gray-600">Gestion sécurisée des produits, bignos et contributions</p>
           </div>
           <Button
             onClick={handleLogout}
@@ -81,6 +95,7 @@ const Admin = () => {
         <Tabs defaultValue="products" className="space-y-6">
           <TabsList>
             <TabsTrigger value="products">Produits</TabsTrigger>
+            <TabsTrigger value="bignos">Bignos</TabsTrigger>
             <TabsTrigger value="contributions">Contributions</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
@@ -95,15 +110,35 @@ const Admin = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Rechercher des produits..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={productSearchTerm}
+                  onChange={(e) => setProductSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
             <ProductTable 
-              searchTerm={searchTerm}
-              onActionSuccess={handleActionSuccess}
+              searchTerm={productSearchTerm}
+              onActionSuccess={handleProductActionSuccess}
+            />
+          </TabsContent>
+
+          <TabsContent value="bignos" className="space-y-6">
+            <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
+            
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Rechercher des bignos..."
+                  value={bignoSearchTerm}
+                  onChange={(e) => setBignoSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <BignosTable 
+              searchTerm={bignoSearchTerm}
+              onActionSuccess={handleBignoActionSuccess}
             />
           </TabsContent>
           
@@ -133,6 +168,19 @@ const Admin = () => {
             <SecureProductForm
               onSuccess={handleAddProductSuccess}
               onCancel={() => setIsAddProductDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog pour ajouter un nouveau bigno */}
+        <Dialog open={isAddBignoDialogOpen} onOpenChange={setIsAddBignoDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Ajouter un nouveau bigno</DialogTitle>
+            </DialogHeader>
+            <SecureBignosForm
+              onSuccess={handleAddBignoSuccess}
+              onCancel={() => setIsAddBignoDialogOpen(false)}
             />
           </DialogContent>
         </Dialog>
