@@ -26,4 +26,6 @@ export interface BignosFormData {
   globalcategory: string;
   namebic: string;
   categorieold: string;
+  hidden: boolean;
+  ban: boolean;
 }

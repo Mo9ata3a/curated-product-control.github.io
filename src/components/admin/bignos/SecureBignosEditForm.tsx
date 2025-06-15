@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,9 @@ import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ImageSection } from "./form/ImageSection";
 import { TextFields } from "./form/TextFields";
 import { Bignos, BignosFormData } from "./form/types";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 interface SecureBignosEditFormProps {
   bigno: Bignos;
@@ -30,7 +33,8 @@ export const SecureBignosEditForm = ({ bigno, onSuccess, onCancel }: SecureBigno
     formState: { errors },
     reset,
     setValue,
-    watch
+    watch,
+    control,
   } = useForm<BignosFormData>({
     resolver: zodResolver(bignosSchema),
     defaultValues: {
@@ -43,6 +47,8 @@ export const SecureBignosEditForm = ({ bigno, onSuccess, onCancel }: SecureBigno
       globalcategory: bigno.globalcategory ?? "",
       namebic: bigno.namebic ?? "",
       categorieold: bigno.categorieold ?? "",
+      hidden: bigno.hidden ?? false,
+      ban: bigno.ban ?? false,
     },
   });
   
@@ -57,6 +63,8 @@ export const SecureBignosEditForm = ({ bigno, onSuccess, onCancel }: SecureBigno
       globalcategory: bigno.globalcategory ?? "",
       namebic: bigno.namebic ?? "",
       categorieold: bigno.categorieold ?? "",
+      hidden: bigno.hidden ?? false,
+      ban: bigno.ban ?? false,
     });
   }, [bigno, reset]);
 
@@ -131,6 +139,46 @@ export const SecureBignosEditForm = ({ bigno, onSuccess, onCancel }: SecureBigno
             isSubmitting={isSubmitting}
           />
           <TextFields register={register} errors={errors} />
+
+          <Separator />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Statut</h3>
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="hidden"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="hidden"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+                <Label htmlFor="hidden">Caché</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="ban"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="ban"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+                <Label htmlFor="ban">Banni</Label>
+              </div>
+            </div>
+            {errors.hidden && <p className="text-sm text-red-500">{errors.hidden.message}</p>}
+            {errors.ban && <p className="text-sm text-red-500">{errors.ban.message}</p>}
+          </div>
+
           <div className="flex justify-end space-x-2 pt-6">
             <Button
               type="button"

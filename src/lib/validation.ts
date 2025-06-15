@@ -99,6 +99,8 @@ export const bignosSchema = z.object({
   globalcategory: sanitizedTextSchema,
   namebic: sanitizedTextSchema,
   categorieold: sanitizedTextSchema,
+  hidden: z.boolean().optional(),
+  ban: z.boolean().optional(),
 });
 
 // Fonction utilitaire pour sanitiser les erreurs - améliorée
