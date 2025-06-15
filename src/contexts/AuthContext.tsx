@@ -29,26 +29,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔍 Checking admin status for user:', userId);
       
-      // Appel de la fonction RPC is_admin avec timeout
+      // Appel de la fonction RPC is_admin avec timeout plus long
       console.log('📞 Calling RPC is_admin...');
       
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('RPC timeout')), 10000); // 10 secondes
+        setTimeout(() => reject(new Error('RPC timeout')), 15000); // 15 secondes
       });
       
       const rpcPromise = supabase.rpc('is_admin', { p_user_id: userId });
       
-      const { data, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
-      
-      console.log('📞 RPC call completed');
-      console.log('📊 RPC Data:', data);
-      console.log('❌ RPC Error:', error);
-      
-      if (error) {
-        console.error('❌ RPC Error details:', error.message, error.code, error.details);
+      try {
+        const { data, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
         
-        // Fallback: essayer une requête directe
-        console.log('🔄 Trying direct query as fallback...');
+        console.log('📞 RPC call completed');
+        console.log('📊 RPC Data:', data);
+        console.log('❌ RPC Error:', error);
+        
+        if (error) {
+          console.error('❌ RPC Error details:', error.message, error.code, error.details);
+          throw error; // Force le fallback
+        }
+        
+        const adminStatus = Boolean(data);
+        console.log('✅ Admin status determined:', adminStatus);
+        setIsAdmin(adminStatus);
+        return adminStatus;
+        
+      } catch (rpcError) {
+        console.log('🔄 RPC failed, trying direct query as fallback...');
+        
+        // Fallback: requête directe à la table admins
         const { data: directData, error: directError } = await supabase
           .from('admins')
           .select('user_id')
@@ -69,11 +79,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAdmin(adminStatus);
         return adminStatus;
       }
-      
-      const adminStatus = Boolean(data);
-      console.log('✅ Admin status determined:', adminStatus);
-      setIsAdmin(adminStatus);
-      return adminStatus;
       
     } catch (error) {
       console.error('💥 Exception during admin check:', error);
