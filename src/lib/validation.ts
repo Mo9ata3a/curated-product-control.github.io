@@ -10,7 +10,14 @@ const ALLOWED_IMAGE_DOMAINS = [
   // Domaines de confiance pour les images
   'www.google.com',
   'encrypted-tbn0.gstatic.com',
-  'lh3.googleusercontent.com'
+  'lh3.googleusercontent.com',
+  // Domaines Supabase Storage
+  'hpgpjnsmplqeatpmtqna.supabase.co',
+  'supabase.co',
+  // Autres domaines de stockage cloud populaires
+  'amazonaws.com',
+  'cloudinary.com',
+  'imgur.com'
 ];
 
 // Schéma de validation pour les URLs d'images - AVEC validation stricte
