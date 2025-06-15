@@ -29,9 +29,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔍 Checking admin status for user:', userId);
       
-      // Appel de la fonction RPC is_admin
+      // Appel de la fonction RPC is_admin avec timeout
       console.log('📞 Calling RPC is_admin...');
-      const { data, error } = await supabase.rpc('is_admin', { p_user_id: userId });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('RPC timeout')), 10000); // 10 secondes
+      });
+      
+      const rpcPromise = supabase.rpc('is_admin', { p_user_id: userId });
+      
+      const { data, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
       
       console.log('📞 RPC call completed');
       console.log('📊 RPC Data:', data);
@@ -39,8 +46,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error('❌ RPC Error details:', error.message, error.code, error.details);
-        setIsAdmin(false);
-        return false;
+        
+        // Fallback: essayer une requête directe
+        console.log('🔄 Trying direct query as fallback...');
+        const { data: directData, error: directError } = await supabase
+          .from('admins')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        console.log('📊 Direct query data:', directData);
+        console.log('❌ Direct query error:', directError);
+        
+        if (directError) {
+          console.error('❌ Direct query failed:', directError);
+          setIsAdmin(false);
+          return false;
+        }
+        
+        const adminStatus = !!directData;
+        console.log('✅ Admin status from direct query:', adminStatus);
+        setIsAdmin(adminStatus);
+        return adminStatus;
       }
       
       const adminStatus = Boolean(data);
