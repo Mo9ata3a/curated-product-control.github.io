@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import BignosTable from '@/components/admin/bignos/BignosTable';
@@ -16,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Search, LogOut } from "lucide-react";
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
 import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
 import { validateSearchTerm } from '@/lib/validation';
@@ -59,15 +58,12 @@ const Admin = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-      toast({
-        title: "Déconnexion réussie",
+      toast.success("Déconnexion réussie", {
         description: "Vous avez été déconnecté avec succès.",
       });
     } catch (error: any) {
-      toast({
-        title: "Erreur de déconnexion",
+      toast.error("Erreur de déconnexion", {
         description: error.message || "Une erreur est survenue lors de la déconnexion.",
-        variant: "destructive",
       });
     }
   };
@@ -205,4 +201,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
