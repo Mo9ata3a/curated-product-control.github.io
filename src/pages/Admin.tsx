@@ -20,6 +20,7 @@ import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
 import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
 import { validateSearchTerm } from '@/lib/validation';
 import { productColumnsConfig, ColumnVisibilityState } from '@/components/admin/ProductTableColumnToggle';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -99,14 +100,17 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="products">Produits</TabsTrigger>
-            <TabsTrigger value="bignos">Bignos</TabsTrigger>
-            <TabsTrigger value="contributions">Contributions</TabsTrigger>
-            <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-            <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
-            <TabsTrigger value="settings">Paramètres</TabsTrigger>
-          </TabsList>
+          <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList>
+              <TabsTrigger value="products">Produits</TabsTrigger>
+              <TabsTrigger value="bignos">Bignos</TabsTrigger>
+              <TabsTrigger value="contributions">Contributions</TabsTrigger>
+              <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+              <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
+              <TabsTrigger value="settings">Paramètres</TabsTrigger>
+            </TabsList>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
           
           <TabsContent value="products" className="space-y-6">
             <ProductTableHeader
@@ -126,11 +130,13 @@ const Admin = () => {
                 />
               </div>
             </div>
-            <ProductTable 
-              searchTerm={productSearchTerm}
-              onActionSuccess={handleProductActionSuccess}
-              columnVisibility={productColumnVisibility}
-            />
+            <div className="overflow-x-auto">
+              <ProductTable 
+                searchTerm={productSearchTerm}
+                onActionSuccess={handleProductActionSuccess}
+                columnVisibility={productColumnVisibility}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="bignos" className="space-y-6">
@@ -147,22 +153,30 @@ const Admin = () => {
                 />
               </div>
             </div>
-            <BignosTable 
-              searchTerm={bignoSearchTerm}
-              onActionSuccess={handleBignoActionSuccess}
-            />
+            <div className="overflow-x-auto">
+              <BignosTable 
+                searchTerm={bignoSearchTerm}
+                onActionSuccess={handleBignoActionSuccess}
+              />
+            </div>
           </TabsContent>
           
           <TabsContent value="contributions" className="space-y-6">
-            <ContributionsTable />
+            <div className="overflow-x-auto">
+              <ContributionsTable />
+            </div>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
-            <UserManagement />
+            <div className="overflow-x-auto">
+              <UserManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
-            <AuditLogViewer />
+            <div className="overflow-x-auto">
+              <AuditLogViewer />
+            </div>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

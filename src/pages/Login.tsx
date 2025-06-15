@@ -25,7 +25,7 @@ const LoginPage = () => {
 
   if (session && !isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-md text-center p-6 bg-white rounded-lg shadow-md">
           <h1 className="text-2xl font-bold mb-4 text-red-600">Accès non autorisé</h1>
           <p className="mb-6">
@@ -40,7 +40,7 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6">Connexion Admin</h1>
         <LoginForm />
