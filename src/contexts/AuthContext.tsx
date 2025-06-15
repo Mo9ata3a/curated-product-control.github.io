@@ -29,38 +29,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔍 Checking admin status for user:', userId);
       
-      // Méthode 1: Essayer la fonction RPC is_admin
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('is_admin', { p_user_id: userId });
+      // Appel de la fonction RPC is_admin
+      console.log('📞 Calling RPC is_admin...');
+      const { data, error } = await supabase.rpc('is_admin', { p_user_id: userId });
       
-      console.log('🔍 RPC is_admin result - data:', rpcData, 'error:', rpcError);
+      console.log('📞 RPC call completed');
+      console.log('📊 RPC Data:', data);
+      console.log('❌ RPC Error:', error);
       
-      if (!rpcError && rpcData !== null) {
-        const adminStatus = !!rpcData;
-        console.log('✅ Admin status from RPC:', adminStatus);
-        setIsAdmin(adminStatus);
-        return adminStatus;
-      }
-      
-      // Méthode 2: Fallback - Interroger directement la table admins
-      console.log('⚠️ RPC failed, trying direct query...');
-      const { data: directData, error: directError } = await supabase
-        .from('admins')
-        .select('user_id')
-        .eq('user_id', userId)
-        .single();
-      
-      console.log('🔍 Direct query result - data:', directData, 'error:', directError);
-      
-      if (directError && directError.code !== 'PGRST116') {
-        // PGRST116 = pas de résultat trouvé, ce qui est normal si l'utilisateur n'est pas admin
-        console.error('❌ Error in direct query:', directError);
+      if (error) {
+        console.error('❌ RPC Error details:', error.message, error.code, error.details);
         setIsAdmin(false);
         return false;
       }
       
-      const adminStatus = !!directData;
-      console.log('✅ Admin status from direct query:', adminStatus);
+      const adminStatus = Boolean(data);
+      console.log('✅ Admin status determined:', adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
       
