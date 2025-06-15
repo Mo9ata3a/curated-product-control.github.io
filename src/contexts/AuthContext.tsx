@@ -29,14 +29,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('Checking admin status for user:', userId);
       
-      // Essayer d'abord de vérifier directement dans la table admins
+      // Utiliser maybeSingle() au lieu de single() pour éviter les erreurs
       const { data, error } = await supabase
         .from('admins')
         .select('user_id')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      console.log('Admin check - data:', data);
+      console.log('Admin check - error:', error);
+      
+      if (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
         return false;
