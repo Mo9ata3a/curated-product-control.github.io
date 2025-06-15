@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -143,21 +144,21 @@ const LoginForm = () => {
   const remainingAttempts = emailValue ? getRemainingAttempts(emailValue) : 5;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Accès sécurisé</CardTitle>
-        <CardDescription>
+    <Card className="rounded-2xl shadow-md border-[1.5px] border-gray-100 px-2 sm:px-0">
+      <CardHeader className="pb-2 sm:pb-4">
+        <CardTitle className="text-lg sm:text-xl">Accès sécurisé</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           Veuillez vous connecter pour accéder au panneau d'administration.
         </CardDescription>
       </CardHeader>
       
       {blockedInfo.blocked && blockedInfo.remainingTime && (
         <CardContent className="pb-0">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDesc className="flex items-center gap-2">
+          <Alert variant="destructive" className="flex flex-row gap-2 px-2 py-1 sm:px-4 sm:py-2 items-center">
+            <AlertTriangle className="h-4 w-4 flex-none" />
+            <AlertDesc className="flex items-center gap-2 text-xs sm:text-sm">
               <Clock className="h-4 w-4" />
-              Trop de tentatives de connexion. Veuillez attendre {formatTime(blockedInfo.remainingTime)} avant de réessayer.
+              Trop de tentatives. Attendez {formatTime(blockedInfo.remainingTime)}.
             </AlertDesc>
           </Alert>
         </CardContent>
@@ -165,13 +166,12 @@ const LoginForm = () => {
       
       {attemptInfo && attemptInfo.attempts > 0 && !blockedInfo.blocked && (
         <CardContent className="pb-0">
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDesc>
+          <Alert className="flex flex-row gap-2 px-2 py-1 sm:px-4 sm:py-2 items-center">
+            <AlertTriangle className="h-4 w-4 flex-none" />
+            <AlertDesc className="flex items-center text-xs sm:text-sm">
               {remainingAttempts > 0 
                 ? `Attention : il vous reste ${remainingAttempts} tentative(s) avant blocage temporaire.`
-                : "Compte temporairement bloqué pour sécurité."
-              }
+                : "Compte temporairement bloqué."}
             </AlertDesc>
           </Alert>
         </CardContent>
@@ -179,17 +179,22 @@ const LoginForm = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-xs sm:text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="admin@exemple.com" {...field} />
+                    <Input
+                      placeholder="admin@exemple.com"
+                      autoComplete="email"
+                      className="rounded-md text-base sm:text-sm h-11 sm:h-10 px-3"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs"/>
                 </FormItem>
               )}
             />
@@ -198,23 +203,28 @@ const LoginForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
+                  <FormLabel className="text-xs sm:text-sm">Mot de passe</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input
+                      type="password"
+                      autoComplete="current-password"
+                      className="rounded-md text-base sm:text-sm h-11 sm:h-10 px-3"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs"/>
                 </FormItem>
               )}
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="pt-2">
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full h-11 sm:h-10 text-base sm:text-sm rounded-md"
               disabled={isSubmitting || blockedInfo.blocked}
             >
-              {isSubmitting ? "Connexion en cours..." : 
-               blockedInfo.blocked ? "Compte bloqué" : "Se connecter"}
+              {isSubmitting ? "Connexion..." : 
+               blockedInfo.blocked ? "Bloqué" : "Se connecter"}
             </Button>
           </CardFooter>
         </form>

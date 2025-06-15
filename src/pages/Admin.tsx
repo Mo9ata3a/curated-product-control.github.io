@@ -82,107 +82,103 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50 py-4 px-1 sm:px-3 md:py-8">
+      <div className="max-w-full md:max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Administration</h1>
-            <p className="mt-2 text-gray-600">Gestion sécurisée des produits, bignos et contributions</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Administration</h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Gestion sécurisée des produits, bignos et contributions</p>
           </div>
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full md:w-auto"
           >
             <LogOut className="h-4 w-4" />
             Se déconnecter
           </Button>
         </div>
 
-        <Tabs defaultValue="products" className="space-y-6">
-          <ScrollArea className="w-full whitespace-nowrap">
-            <TabsList>
-              <TabsTrigger value="products">Produits</TabsTrigger>
-              <TabsTrigger value="bignos">Bignos</TabsTrigger>
-              <TabsTrigger value="contributions">Contributions</TabsTrigger>
-              <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-              <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
-              <TabsTrigger value="settings">Paramètres</TabsTrigger>
-            </TabsList>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-          
-          <TabsContent value="products" className="space-y-6">
-            <ProductTableHeader
-              onAddProduct={() => setIsAddProductDialogOpen(true)}
+        <ScrollArea className="w-full whitespace-nowrap md:mb-6">
+          <TabsList>
+            <TabsTrigger value="products">Produits</TabsTrigger>
+            <TabsTrigger value="bignos">Bignos</TabsTrigger>
+            <TabsTrigger value="contributions">Contributions</TabsTrigger>
+            <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+            <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
+            <TabsTrigger value="settings">Paramètres</TabsTrigger>
+          </TabsList>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+        
+        <TabsContent value="products" className="space-y-4 sm:space-y-6">
+          <ProductTableHeader
+            onAddProduct={() => setIsAddProductDialogOpen(true)}
+            columnVisibility={productColumnVisibility}
+            onColumnVisibilityChange={setProductColumnVisibility}
+          />
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
+            <div className="relative w-full max-w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Rechercher des produits..."
+                value={productSearchTerm}
+                onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <div className="w-full overflow-x-auto">
+            <ProductTable 
+              searchTerm={productSearchTerm}
+              onActionSuccess={handleProductActionSuccess}
               columnVisibility={productColumnVisibility}
-              onColumnVisibilityChange={setProductColumnVisibility}
             />
-            
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Rechercher des produits..."
-                  value={productSearchTerm}
-                  onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <ProductTable 
-                searchTerm={productSearchTerm}
-                onActionSuccess={handleProductActionSuccess}
-                columnVisibility={productColumnVisibility}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="bignos" className="space-y-4 sm:space-y-6">
+          <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
+            <div className="relative w-full max-w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Rechercher des bignos..."
+                value={bignoSearchTerm}
+                onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))}
+                className="pl-10"
               />
             </div>
-          </TabsContent>
+          </div>
+          <div className="w-full overflow-x-auto">
+            <BignosTable 
+              searchTerm={bignoSearchTerm}
+              onActionSuccess={handleBignoActionSuccess}
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="contributions" className="space-y-4 sm:space-y-6">
+          <div className="w-full overflow-x-auto">
+            <ContributionsTable />
+          </div>
+        </TabsContent>
 
-          <TabsContent value="bignos" className="space-y-6">
-            <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
-            
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Rechercher des bignos..."
-                  value={bignoSearchTerm}
-                  onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <BignosTable 
-                searchTerm={bignoSearchTerm}
-                onActionSuccess={handleBignoActionSuccess}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="contributions" className="space-y-6">
-            <div className="overflow-x-auto">
-              <ContributionsTable />
-            </div>
-          </TabsContent>
+        <TabsContent value="users" className="space-y-4 sm:space-y-6">
+          <div className="w-full overflow-x-auto">
+            <UserManagement />
+          </div>
+        </TabsContent>
 
-          <TabsContent value="users" className="space-y-6">
-            <div className="overflow-x-auto">
-              <UserManagement />
-            </div>
-          </TabsContent>
+        <TabsContent value="audit" className="space-y-4 sm:space-y-6">
+          <div className="w-full overflow-x-auto">
+            <AuditLogViewer />
+          </div>
+        </TabsContent>
 
-          <TabsContent value="audit" className="space-y-6">
-            <div className="overflow-x-auto">
-              <AuditLogViewer />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <AccountSettings />
-          </TabsContent>
-        </Tabs>
+        <TabsContent value="settings" className="space-y-6">
+          <AccountSettings />
+        </TabsContent>
 
         {/* Dialog pour ajouter un nouveau produit */}
         <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
