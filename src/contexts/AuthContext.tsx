@@ -29,11 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('Starting admin check for user:', userId);
       
+      // Utiliser la fonction PostgreSQL is_admin qui contourne les politiques RLS
       const { data, error } = await supabase
-        .from('admins')
-        .select('user_id')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .rpc('is_admin', { p_user_id: userId });
       
       console.log('Admin check completed - data:', data);
       console.log('Admin check completed - error:', error);
