@@ -6,9 +6,12 @@ import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, LogOut } from "lucide-react";
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from "@/components/ui/use-toast";
 
 const Admin = () => {
   const { session, isAdmin, loading } = useAuth();
@@ -17,6 +20,22 @@ const Admin = () => {
 
   const handleActionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Erreur de déconnexion",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès.",
+      });
+    }
   };
 
   if (loading) {
@@ -34,9 +53,19 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Administration</h1>
-          <p className="mt-2 text-gray-600">Gestion sécurisée des produits et contributions</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Administration</h1>
+            <p className="mt-2 text-gray-600">Gestion sécurisée des produits et contributions</p>
+          </div>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Se déconnecter
+          </Button>
         </div>
 
         <Tabs defaultValue="products" className="space-y-6">

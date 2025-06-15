@@ -29,16 +29,19 @@ export type Database = {
           cle: number
           id: string | null
           produit: string | null
+          user_id: string | null
         }
         Insert: {
           cle: number
           id?: string | null
           produit?: string | null
+          user_id?: string | null
         }
         Update: {
           cle?: number
           id?: string | null
           produit?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -349,6 +352,7 @@ export type Database = {
           lien: string | null
           logo: string | null
           marque: string | null
+          user_id: string | null
         }
         Insert: {
           bigno?: string | null
@@ -357,6 +361,7 @@ export type Database = {
           lien?: string | null
           logo?: string | null
           marque?: string | null
+          user_id?: string | null
         }
         Update: {
           bigno?: string | null
@@ -365,6 +370,7 @@ export type Database = {
           lien?: string | null
           logo?: string | null
           marque?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
