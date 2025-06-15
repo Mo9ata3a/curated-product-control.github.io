@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -14,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { ProductTableHeader } from "./ProductTableHeader";
+import { ProductTableHeaderRow } from "./ProductTableHeaderRow";
 import { ProductTableRow } from "./ProductTableRow";
 import { ProductTablePagination } from "./ProductTablePagination";
 import { ProductTableDialogs } from "./ProductTableDialogs";
@@ -129,7 +128,7 @@ const ProductTable = ({
       <Card>
         <CardContent className="p-0">
           <Table>
-            <ProductTableHeader />
+            <ProductTableHeaderRow />
             <TableBody>
               {[...Array(PAGE_SIZE)].map((_, i) => (
                 <TableRow key={i}>
@@ -172,7 +171,7 @@ const ProductTable = ({
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ProductTableHeader />
+              <ProductTableHeaderRow />
               <TableBody>
                 {products?.length === 0 && !isLoading ? (
                   <TableRow>
