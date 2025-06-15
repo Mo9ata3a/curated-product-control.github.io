@@ -29,20 +29,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('Starting admin check for user:', userId);
       
-      // Utiliser la fonction PostgreSQL is_admin qui contourne les politiques RLS
-      const { data, error } = await supabase
+      // D'abord essayer avec la fonction RPC is_admin
+      const { data: rpcData, error: rpcError } = await supabase
         .rpc('is_admin', { p_user_id: userId });
       
-      console.log('Admin check completed - data:', data);
-      console.log('Admin check completed - error:', error);
+      console.log('RPC call completed - data:', rpcData);
+      console.log('RPC call completed - error:', rpcError);
       
-      if (error) {
-        console.error('Error checking admin status:', error);
-        setIsAdmin(false);
-        return false;
+      if (rpcError) {
+        console.error('RPC call failed, trying direct query:', rpcError);
+        
+        // Fallback: requête directe à la table admins
+        const { data: directData, error: directError } = await supabase
+          .from('admins')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        console.log('Direct query completed - data:', directData);
+        console.log('Direct query completed - error:', directError);
+        
+        if (directError) {
+          console.error('Direct query also failed:', directError);
+          setIsAdmin(false);
+          return false;
+        }
+        
+        const adminStatus = !!directData;
+        console.log('Admin status from direct query:', adminStatus);
+        setIsAdmin(adminStatus);
+        return adminStatus;
       }
       
-      const adminStatus = !!data;
+      const adminStatus = !!rpcData;
       console.log('Final admin status result:', adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
