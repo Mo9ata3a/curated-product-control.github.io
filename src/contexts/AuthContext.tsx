@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
-import { loadSessionFromLocalStorage, clearSessionFromLocalStorage } from '@/lib/auth-storage';
 
 type AuthContextType = {
   session: Session | null;
@@ -20,8 +19,6 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  loadSessionFromLocalStorage();
-
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -92,7 +89,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      clearSessionFromLocalStorage();
       if (error) {
         console.error('Error signing out:', error);
         throw error;

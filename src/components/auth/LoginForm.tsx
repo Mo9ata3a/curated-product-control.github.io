@@ -16,7 +16,6 @@ import { toast } from "@/components/ui/use-toast";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,8 +25,6 @@ import { useState, useEffect } from "react";
 import { useAuthAttempts } from "@/hooks/useAuthAttempts";
 import { AlertTriangle, Clock } from "lucide-react";
 import { Alert, AlertDescription as AlertDesc } from "@/components/ui/alert";
-import { Switch } from "@/components/ui/switch";
-import { persistSessionToLocalStorage, clearSessionFromLocalStorage } from "@/lib/auth-storage";
 
 const formSchema = z.object({
   email: z
@@ -36,7 +33,6 @@ const formSchema = z.object({
   password: z
     .string()
     .min(1, { message: "Le mot de passe ne peut pas être vide." }),
-  rememberMe: z.boolean().default(true),
 });
 
 const LoginForm = () => {
@@ -56,7 +52,6 @@ const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: true,
     },
   });
 
@@ -129,11 +124,6 @@ const LoginForm = () => {
       });
     } else {
       // Connexion réussie, reset les tentatives
-      if (values.rememberMe) {
-        persistSessionToLocalStorage();
-      } else {
-        clearSessionFromLocalStorage();
-      }
       recordSuccessfulAttempt(values.email);
       toast({
         title: "Connexion réussie",
@@ -213,26 +203,6 @@ const LoginForm = () => {
                     <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="rememberMe"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Se souvenir de moi</FormLabel>
-                    <FormDescription>
-                      Pour rester connecté après la fermeture du navigateur.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />
