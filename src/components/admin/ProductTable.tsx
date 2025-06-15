@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -17,15 +18,18 @@ import { ProductTableHeaderRow } from "./ProductTableHeaderRow";
 import { ProductTableRow } from "./ProductTableRow";
 import { ProductTablePagination } from "./ProductTablePagination";
 import { ProductTableDialogs } from "./ProductTableDialogs";
+import { ColumnVisibilityState } from "./ProductTableColumnToggle";
 
 const PAGE_SIZE = 10;
 
 const ProductTable = ({
   searchTerm,
   onActionSuccess,
+  columnVisibility,
 }: {
   searchTerm: string;
   onActionSuccess: () => void;
+  columnVisibility: ColumnVisibilityState;
 }) => {
   const [page, setPage] = useState(1);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -123,19 +127,20 @@ const ProductTable = ({
   };
 
   if (isLoading) {
+    const visibleColumnCount = Object.values(columnVisibility).filter(v => v).length;
     return (
       <Card>
         <CardContent className="p-0">
           <Table>
-            <ProductTableHeaderRow />
+            <ProductTableHeaderRow columnVisibility={columnVisibility} />
             <TableBody>
               {[...Array(PAGE_SIZE)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell className="px-6">
                     <Skeleton className="h-10 w-10 rounded-md" />
                   </TableCell>
-                  {[...Array(10)].map((_, j) => (
-                    <TableCell key={j}>
+                  {[...Array(visibleColumnCount)].map((_, j) => (
+                    <TableCell key={j} className="p-4">
                       <Skeleton className="h-4 w-20" />
                     </TableCell>
                   ))}
@@ -170,11 +175,11 @@ const ProductTable = ({
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
-              <ProductTableHeaderRow />
+              <ProductTableHeaderRow columnVisibility={columnVisibility} />
               <TableBody>
                 {products?.length === 0 && !isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={12} className="h-24 text-center">
+                    <TableCell colSpan={Object.values(columnVisibility).filter(v => v).length + 2} className="h-24 text-center">
                       Aucun produit trouvé.
                     </TableCell>
                   </TableRow>
@@ -184,6 +189,7 @@ const ProductTable = ({
                     product={product}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    columnVisibility={columnVisibility}
                   />
                 ))}
               </TableBody>
