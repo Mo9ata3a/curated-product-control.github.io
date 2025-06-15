@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
@@ -11,11 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Search, LogOut } from "lucide-react";
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/hooks/use-toast";
 
 const Admin = () => {
-  const { session, isAdmin, loading } = useAuth();
+  const { session, isAdmin, loading, signOut } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
@@ -24,17 +22,17 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Erreur de déconnexion",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+    try {
+      await signOut();
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur de déconnexion",
+        description: error.message || "Une erreur est survenue lors de la déconnexion.",
+        variant: "destructive",
       });
     }
   };
