@@ -165,10 +165,10 @@ const LoginForm = () => {
         <CardContent className="pb-0">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="flex items-center gap-2">
+            <AlertDesc className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Trop de tentatives de connexion. Veuillez attendre {formatTime(blockedInfo.remainingTime)} avant de réessayer.
-            </AlertDescription>
+            </AlertDesc>
           </Alert>
         </CardContent>
       )}
@@ -177,12 +177,12 @@ const LoginForm = () => {
         <CardContent className="pb-0">
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
+            <AlertDesc>
               {remainingAttempts > 0 
                 ? `Attention : il vous reste ${remainingAttempts} tentative(s) avant blocage temporaire.`
                 : "Compte temporairement bloqué pour sécurité."
               }
-            </AlertDescription>
+            </AlertDesc>
           </Alert>
         </CardContent>
       )}
