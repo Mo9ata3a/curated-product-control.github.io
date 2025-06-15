@@ -27,21 +27,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
+      console.log('🔍 Checking admin status for user:', userId);
+      
       // Utiliser la fonction RPC is_admin qui contourne les politiques RLS
       const { data, error } = await supabase
         .rpc('is_admin', { p_user_id: userId });
       
+      console.log('🔍 RPC is_admin result - data:', data, 'error:', error);
+      
       if (error) {
-        console.error('Error checking admin status:', error);
+        console.error('❌ Error checking admin status:', error);
         setIsAdmin(false);
         return false;
       }
       
       const adminStatus = !!data;
+      console.log('✅ Admin status determined:', adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
     } catch (error) {
-      console.error('Exception during admin check:', error);
+      console.error('💥 Exception during admin check:', error);
       setIsAdmin(false);
       return false;
     }
@@ -66,10 +71,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
+      console.log('🔄 Auth state change:', event, 'has session:', !!session);
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        console.log('👤 User found, checking admin status...');
         try {
           await checkAdminStatus(session.user.id);
         } catch (error) {
@@ -77,16 +85,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (mounted) setIsAdmin(false);
         }
       } else {
+        console.log('👤 No user, setting isAdmin to false');
         if (mounted) setIsAdmin(false);
       }
       
       if (mounted) {
+        console.log('⏳ Setting loading to false');
         setLoading(false);
       }
     });
 
     const getInitialSession = async () => {
       try {
+        console.log('🚀 Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
@@ -97,10 +108,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
+        console.log('🚀 Initial session found:', !!session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('👤 Initial session has user, checking admin...');
           try {
             await checkAdminStatus(session.user.id);
           } catch (error) {
@@ -108,6 +121,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (mounted) setIsAdmin(false);
           }
         } else {
+          console.log('👤 No initial session user');
           if (mounted) setIsAdmin(false);
         }
       } catch (error) {
@@ -115,6 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (mounted) setIsAdmin(false);
       } finally {
         if (mounted) {
+          console.log('✅ Initial session check complete, setting loading to false');
           setLoading(false);
         }
       }
