@@ -9,16 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, Trash2, Shield, User } from "lucide-react";
+import { Loader2, UserPlus, Trash2, Shield, User, AlertTriangle } from "lucide-react";
 
 interface AdminUser {
   user_id: string;
   created_at: string;
-  email?: string;
 }
 
 const UserManagement = () => {
-  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminUserId, setNewAdminUserId] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -36,69 +35,30 @@ const UserManagement = () => {
         throw error;
       }
 
-      // Pour chaque admin, essayer de récupérer les infos utilisateur depuis auth.users
-      const adminsWithEmails = await Promise.all(
-        data.map(async (admin) => {
-          try {
-            // Note: En production, vous devriez créer une fonction edge ou une vue pour récupérer les emails
-            // car auth.users n'est pas directement accessible via l'API
-            return {
-              ...admin,
-              email: `Utilisateur ${admin.user_id.substring(0, 8)}...`
-            };
-          } catch (error) {
-            return {
-              ...admin,
-              email: 'Email non disponible'
-            };
-          }
-        })
-      );
-
-      return adminsWithEmails;
+      return data || [];
     },
   });
 
-  // Ajouter un nouvel administrateur
+  // Ajouter un nouvel administrateur par ID utilisateur
   const addAdminMutation = useMutation({
-    mutationFn: async (email: string) => {
-      console.log('Adding new admin with email:', email);
+    mutationFn: async (userId: string) => {
+      console.log('Adding new admin with user ID:', userId);
       
-      // D'abord, inviter l'utilisateur si il n'existe pas
-      const { data: signUpData, error: signUpError } = await supabase.auth.admin.inviteUserByEmail(email);
-      
-      if (signUpError && signUpError.message !== 'User already registered') {
-        throw signUpError;
-      }
-
-      // Récupérer l'ID utilisateur
-      let userId = signUpData?.user?.id;
-      
-      if (!userId) {
-        // Si l'utilisateur existe déjà, essayer de le trouver
-        const { data: existingUsers, error: getUserError } = await supabase.auth.admin.listUsers();
-        if (getUserError) throw getUserError;
-        
-        const existingUser = existingUsers.users.find(u => u.email === email);
-        if (!existingUser) throw new Error('Utilisateur non trouvé');
-        userId = existingUser.id;
-      }
-
-      // Ajouter à la table admins
-      const { error: adminError } = await supabase
+      // Ajouter directement à la table admins
+      const { error } = await supabase
         .from('admins')
         .insert({ user_id: userId });
 
-      if (adminError) throw adminError;
+      if (error) throw error;
 
-      return { userId, email };
+      return { userId };
     },
     onSuccess: () => {
       toast({
         title: "Administrateur ajouté",
         description: "Le nouvel administrateur a été ajouté avec succès.",
       });
-      setNewAdminEmail('');
+      setNewAdminUserId('');
       setIsAddDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['admins'] });
     },
@@ -141,15 +101,15 @@ const UserManagement = () => {
   });
 
   const handleAddAdmin = () => {
-    if (!newAdminEmail.trim()) {
+    if (!newAdminUserId.trim()) {
       toast({
         title: "Erreur",
-        description: "Veuillez saisir une adresse email valide.",
+        description: "Veuillez saisir un ID utilisateur valide.",
         variant: "destructive",
       });
       return;
     }
-    addAdminMutation.mutate(newAdminEmail.trim());
+    addAdminMutation.mutate(newAdminUserId.trim());
   };
 
   if (isLoading) {
@@ -163,6 +123,22 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Avertissement sur les limitations */}
+      <Card className="border-amber-200 bg-amber-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-800">
+            <AlertTriangle className="h-5 w-5" />
+            Information importante
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-amber-700 text-sm">
+            Pour des raisons de sécurité, l'invitation automatique d'utilisateurs n'est pas disponible avec la configuration actuelle. 
+            Pour ajouter un administrateur, vous devez saisir l'ID utilisateur d'un compte Supabase existant.
+          </p>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -186,20 +162,23 @@ const UserManagement = () => {
                 <DialogHeader>
                   <DialogTitle>Ajouter un nouvel administrateur</DialogTitle>
                   <DialogDescription>
-                    Saisissez l'adresse email de l'utilisateur à promouvoir administrateur. 
-                    Si l'utilisateur n'existe pas, une invitation lui sera envoyée.
+                    Saisissez l'ID utilisateur Supabase d'un compte existant pour lui donner les privilèges d'administrateur.
+                    L'utilisateur doit déjà avoir un compte dans le système.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Adresse email</Label>
+                    <Label htmlFor="userId">ID Utilisateur</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      value={newAdminEmail}
-                      onChange={(e) => setNewAdminEmail(e.target.value)}
-                      placeholder="admin@exemple.com"
+                      id="userId"
+                      type="text"
+                      value={newAdminUserId}
+                      onChange={(e) => setNewAdminUserId(e.target.value)}
+                      placeholder="25e06519-14e2-48e5-9cf5-6c1e7b9fc979"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      L'ID utilisateur est un UUID au format : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                    </p>
                   </div>
                 </div>
                 <DialogFooter>
@@ -230,7 +209,7 @@ const UserManagement = () => {
                 <TableHead>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    Utilisateur
+                    ID Utilisateur
                   </div>
                 </TableHead>
                 <TableHead>Date d'ajout</TableHead>
@@ -241,11 +220,8 @@ const UserManagement = () => {
               {admins?.map((admin) => (
                 <TableRow key={admin.user_id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">{admin.email}</div>
-                      <div className="text-sm text-muted-foreground">
-                        ID: {admin.user_id.substring(0, 8)}...
-                      </div>
+                    <div className="font-mono text-sm">
+                      {admin.user_id}
                     </div>
                   </TableCell>
                   <TableCell>
