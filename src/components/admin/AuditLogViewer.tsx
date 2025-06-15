@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AuditLogCard } from './AuditLogCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuditLog {
   id: string;
@@ -54,7 +56,22 @@ export const AuditLogViewer = () => {
           <CardTitle>Journal d'audit</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>Chargement des logs d'audit...</p>
+          <div className="hidden md:block">
+            <p>Chargement des logs d'audit...</p>
+          </div>
+          <div className="md:hidden space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="p-4">
+                  <Skeleton className="h-5 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
@@ -85,61 +102,76 @@ export const AuditLogViewer = () => {
         {!auditLogs || auditLogs.length === 0 ? (
           <p className="text-gray-500">Aucun log d'audit disponible</p>
         ) : (
-          <ScrollArea className="h-[600px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Table</TableHead>
-                  <TableHead>Opération</TableHead>
-                  <TableHead>Utilisateur</TableHead>
-                  <TableHead>Détails</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {auditLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="text-sm">
-                      {new Date(log.created_at).toLocaleString('fr-FR')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{log.table_name}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {getOperationBadge(log.operation)}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {log.user_email || 'Système'}
-                    </TableCell>
-                    <TableCell className="text-sm max-w-xs">
-                      {log.operation === 'UPDATE' && log.old_data && log.new_data ? (
-                        <div className="space-y-1">
-                          <div className="text-xs text-gray-500">Changements détectés</div>
-                          {Object.keys(log.new_data).map((key) => {
-                            if (log.old_data[key] !== log.new_data[key]) {
-                              return (
-                                <div key={key} className="text-xs">
-                                  <span className="font-medium">{key}:</span>{' '}
-                                  <span className="text-red-500">{String(log.old_data[key] || 'null')}</span>
-                                  {' → '}
-                                  <span className="text-green-500">{String(log.new_data[key] || 'null')}</span>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-xs text-gray-500">
-                          {log.operation === 'INSERT' ? 'Nouvel enregistrement' : 'Enregistrement supprimé'}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+                <ScrollArea className="h-[600px]">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Table</TableHead>
+                                <TableHead>Opération</TableHead>
+                                <TableHead>Utilisateur</TableHead>
+                                <TableHead>Détails</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {auditLogs.map((log) => (
+                            <TableRow key={log.id}>
+                                <TableCell className="text-sm">
+                                {new Date(log.created_at).toLocaleString('fr-FR')}
+                                </TableCell>
+                                <TableCell>
+                                <Badge variant="outline">{log.table_name}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                {getOperationBadge(log.operation)}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                {log.user_email || 'Système'}
+                                </TableCell>
+                                <TableCell className="text-sm max-w-xs">
+                                {log.operation === 'UPDATE' && log.old_data && log.new_data ? (
+                                    <div className="space-y-1">
+                                    <div className="text-xs text-gray-500">Changements détectés</div>
+                                    {Object.keys(log.new_data).map((key) => {
+                                        if (log.old_data[key] !== log.new_data[key]) {
+                                        return (
+                                            <div key={key} className="text-xs">
+                                            <span className="font-medium">{key}:</span>{' '}
+                                            <span className="text-red-500">{String(log.old_data[key] || 'null')}</span>
+                                            {' → '}
+                                            <span className="text-green-500">{String(log.new_data[key] || 'null')}</span>
+                                            </div>
+                                        );
+                                        }
+                                        return null;
+                                    })}
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-gray-500">
+                                    {log.operation === 'INSERT' ? 'Nouvel enregistrement' : 'Enregistrement supprimé'}
+                                    </div>
+                                )}
+                                </TableCell>
+                            </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+            </div>
+            {/* Mobile Card View */}
+            <div className="md:hidden">
+              <ScrollArea className="h-[600px]">
+                  <div className="space-y-4 pr-4">
+                      {auditLogs.map((log) => (
+                          <AuditLogCard key={log.id} log={log} />
+                      ))}
+                  </div>
+              </ScrollArea>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
