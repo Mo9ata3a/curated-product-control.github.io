@@ -4,15 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { ImageUpload } from "./ImageUpload";
 import { 
   productNameSchema, 
   brandSchema, 
@@ -22,6 +18,9 @@ import {
   sanitizedTextSchema,
   sanitizeError 
 } from "@/lib/validation";
+import { BasicInfoFields } from "./form/BasicInfoFields";
+import { ImageSection } from "./form/ImageSection";
+import { TextFields } from "./form/TextFields";
 
 // Schéma de validation complet pour le formulaire
 const productSchema = z.object({
@@ -161,170 +160,18 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Nom du produit */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Nom du produit *</Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="Nom du produit"
-                maxLength={200}
-              />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
-            </div>
-
-            {/* Marque */}
-            <div className="space-y-2">
-              <Label htmlFor="marque">Marque *</Label>
-              <Input
-                id="marque"
-                {...register("marque")}
-                placeholder="Marque"
-                maxLength={100}
-              />
-              {errors.marque && (
-                <p className="text-sm text-red-500">{errors.marque.message}</p>
-              )}
-            </div>
-
-            {/* Catégorie */}
-            <div className="space-y-2">
-              <Label htmlFor="categorie">Catégorie *</Label>
-              <Input
-                id="categorie"
-                {...register("categorie")}
-                placeholder="Catégorie"
-                maxLength={100}
-              />
-              {errors.categorie && (
-                <p className="text-sm text-red-500">{errors.categorie.message}</p>
-              )}
-            </div>
-
-            {/* Prix */}
-            <div className="space-y-2">
-              <Label htmlFor="prix">Prix</Label>
-              <Input
-                id="prix"
-                {...register("prix")}
-                placeholder="99.99"
-                type="text"
-                pattern="[0-9]+(\.[0-9]{1,2})?"
-              />
-              {errors.prix && (
-                <p className="text-sm text-red-500">{errors.prix.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* URL d'image */}
-          <div className="space-y-2">
-            <Label htmlFor="photo_url">URL de l'image</Label>
-            <Input
-              id="photo_url"
-              {...register("photo_url")}
-              placeholder="https://example.com/image.jpg"
-              type="url"
-            />
-            {errors.photo_url && (
-              <p className="text-sm text-red-500">{errors.photo_url.message}</p>
-            )}
-            {photoUrl && (
-              <div className="mt-2">
-                <img 
-                  src={photoUrl} 
-                  alt="Aperçu" 
-                  className="w-32 h-32 object-cover rounded-lg border"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Upload d'image */}
-          <div className="md:col-span-2">
-            <ImageUpload
-              currentUrl={photoUrl}
-              onImageUpload={handleImageUpload}
-              disabled={isSubmitting}
-            />
-          </div>
+          <BasicInfoFields register={register} errors={errors} />
+          
+          <ImageSection 
+            register={register} 
+            errors={errors}
+            photoUrl={photoUrl}
+            onImageUpload={handleImageUpload}
+            isSubmitting={isSubmitting}
+          />
 
           {/* Champs de texte longs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="article">Article</Label>
-              <Textarea
-                id="article"
-                {...register("article")}
-                placeholder="Description de l'article"
-                maxLength={500}
-                rows={3}
-              />
-              {errors.article && (
-                <p className="text-sm text-red-500">{errors.article.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="eng">Nom anglais</Label>
-              <Textarea
-                id="eng"
-                {...register("eng")}
-                placeholder="Nom en anglais"
-                maxLength={500}
-                rows={3}
-              />
-              {errors.eng && (
-                <p className="text-sm text-red-500">{errors.eng.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="globalcategory">Catégorie globale</Label>
-              <Input
-                id="globalcategory"
-                {...register("globalcategory")}
-                placeholder="Catégorie globale"
-                maxLength={500}
-              />
-              {errors.globalcategory && (
-                <p className="text-sm text-red-500">{errors.globalcategory.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="namebic">Nom BIC</Label>
-              <Input
-                id="namebic"
-                {...register("namebic")}
-                placeholder="Nom BIC"
-                maxLength={500}
-              />
-              {errors.namebic && (
-                <p className="text-sm text-red-500">{errors.namebic.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="categorieold">Ancienne catégorie</Label>
-              <Input
-                id="categorieold"
-                {...register("categorieold")}
-                placeholder="Ancienne catégorie"
-                maxLength={500}
-              />
-              {errors.categorieold && (
-                <p className="text-sm text-red-500">{errors.categorieold.message}</p>
-              )}
-            </div>
-          </div>
+          <TextFields register={register} errors={errors} />
 
           {/* Boutons d'action */}
           <div className="flex justify-end space-x-2 pt-6">
