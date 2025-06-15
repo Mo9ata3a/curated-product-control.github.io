@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { ImageUpload } from "./ImageUpload";
 import { 
   productNameSchema, 
   brandSchema, 
@@ -92,16 +94,16 @@ export const SecureProductEditForm = ({
       // Validation côté client avant envoi - avec truncation si nécessaire
       const validatedData = {
         ...data,
-        name: productNameSchema.parse(data.name.slice(0, 200)), // Limiter à 200 caractères
-        marque: brandSchema.parse(data.marque.slice(0, 100)), // Limiter à 100 caractères
-        categorie: categorySchema.parse(data.categorie.slice(0, 100)), // Limiter à 100 caractères
-        prix: priceSchema.parse(data.prix), // Le schéma fait déjà le trim
+        name: productNameSchema.parse(data.name.slice(0, 200)),
+        marque: brandSchema.parse(data.marque.slice(0, 100)),
+        categorie: categorySchema.parse(data.categorie.slice(0, 100)),
+        prix: priceSchema.parse(data.prix),
         photo_url: data.photo_url.trim() === '' ? null : data.photo_url.trim(),
-        eng: sanitizedTextSchema.parse(data.eng.slice(0, 500)), // Limiter à 500 caractères
-        article: sanitizedTextSchema.parse(data.article.slice(0, 500)), // Limiter à 500 caractères
-        namebic: sanitizedTextSchema.parse(data.namebic.slice(0, 500)), // Limiter à 500 caractères
-        globalcategory: sanitizedTextSchema.parse(data.globalcategory.slice(0, 500)), // Limiter à 500 caractères
-        categorieold: sanitizedTextSchema.parse(data.categorieold.slice(0, 500)), // Limiter à 500 caractères
+        eng: sanitizedTextSchema.parse(data.eng.slice(0, 500)),
+        article: sanitizedTextSchema.parse(data.article.slice(0, 500)),
+        namebic: sanitizedTextSchema.parse(data.namebic.slice(0, 500)),
+        globalcategory: sanitizedTextSchema.parse(data.globalcategory.slice(0, 500)),
+        categorieold: sanitizedTextSchema.parse(data.categorieold.slice(0, 500)),
         marque_id: data.marque_id ? parseInt(data.marque_id.toString()) : null,
       };
 
@@ -160,7 +162,6 @@ export const SecureProductEditForm = ({
           value = value.slice(0, 500);
           break;
         case 'prix':
-          // Nettoyer les espaces pour le prix
           value = value.trim();
           break;
       }
@@ -175,6 +176,10 @@ export const SecureProductEditForm = ({
     if (typeof value === 'string') {
       validateField(field, value);
     }
+  };
+
+  const handleImageUpload = (url: string) => {
+    handleInputChange("photo_url", url);
   };
 
   return (
@@ -243,21 +248,14 @@ export const SecureProductEditForm = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="photo_url">URL de l'image ({formData.photo_url.length}/500)</Label>
-          <Input
-            id="photo_url"
-            type="url"
-            value={formData.photo_url}
-            onChange={(e) => handleInputChange("photo_url", e.target.value)}
-            maxLength={500}
-            placeholder="https://images.unsplash.com/example.jpg (optionnel)"
+          <ImageUpload
+            currentUrl={formData.photo_url}
+            onImageUpload={handleImageUpload}
+            disabled={isPending}
           />
           {validationErrors.photo_url && (
             <p className="text-red-500 text-sm">{validationErrors.photo_url}</p>
           )}
-          <p className="text-xs text-gray-500">
-            Domaines autorisés: images.unsplash.com, via.placeholder.com, picsum.photos (ou laisser vide)
-          </p>
         </div>
       </div>
 

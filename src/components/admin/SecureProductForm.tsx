@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Upload, Shield } from "lucide-react";
+import { AlertTriangle, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageUpload } from "./ImageUpload";
 import { 
   productNameSchema, 
   brandSchema, 
@@ -52,6 +53,7 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -72,6 +74,10 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
   // Surveiller l'URL de l'image pour validation en temps réel
   const photoUrl = watch("photo_url");
 
+  const handleImageUpload = (url: string) => {
+    setValue("photo_url", url, { shouldValidate: true });
+  };
+
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     setValidationErrors([]);
@@ -84,18 +90,6 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
       if (data.name.length > 200) errors.push("Le nom est trop long");
       if (data.marque.length > 100) errors.push("La marque est trop longue");
       if (data.categorie.length > 100) errors.push("La catégorie est trop longue");
-      
-      // Vérifier l'URL si fournie
-      if (data.photo_url) {
-        try {
-          const url = new URL(data.photo_url);
-          if (url.protocol !== 'https:') {
-            errors.push("L'URL de l'image doit utiliser HTTPS");
-          }
-        } catch {
-          errors.push("URL d'image invalide");
-        }
-      }
 
       if (errors.length > 0) {
         setValidationErrors(errors);
@@ -224,28 +218,18 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
                 <p className="text-sm text-red-500">{errors.prix.message}</p>
               )}
             </div>
+          </div>
 
-            {/* URL de l'image */}
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="photo_url">URL de l'image (HTTPS uniquement)</Label>
-              <div className="flex items-center space-x-2">
-                <Upload className="h-4 w-4 text-gray-400" />
-                <Input
-                  id="photo_url"
-                  {...register("photo_url")}
-                  placeholder="https://images.example.com/photo.jpg"
-                  type="url"
-                />
-              </div>
-              {errors.photo_url && (
-                <p className="text-sm text-red-500">{errors.photo_url.message}</p>
-              )}
-              {photoUrl && (
-                <p className="text-xs text-gray-500">
-                  Aperçu : {photoUrl.slice(0, 50)}{photoUrl.length > 50 ? '...' : ''}
-                </p>
-              )}
-            </div>
+          {/* Upload d'image */}
+          <div className="md:col-span-2">
+            <ImageUpload
+              currentUrl={photoUrl}
+              onImageUpload={handleImageUpload}
+              disabled={isSubmitting}
+            />
+            {errors.photo_url && (
+              <p className="text-sm text-red-500 mt-2">{errors.photo_url.message}</p>
+            )}
           </div>
 
           {/* Champs de texte longs */}
