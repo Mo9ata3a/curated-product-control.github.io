@@ -1,3 +1,4 @@
+
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import BignosTable from '@/components/admin/bignos/BignosTable';
@@ -92,11 +93,11 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50 py-4 px-1 sm:px-3 md:py-8">
       {/* Mobile Hamburger + Sidebar */}
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0">
           <AdminHamburger onClick={() => setSidebarOpen(true)} />
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Administration</h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 truncate">Administration</h1>
+            <p className="mt-1 text-sm sm:text-base text-gray-600 hidden sm:block">
               Gestion sécurisée des produits, bignos et contributions
             </p>
           </div>
@@ -104,7 +105,7 @@ const Admin = () => {
         <Button
           onClick={handleLogout}
           variant="outline"
-          className="flex items-center gap-2 w-auto"
+          className="hidden md:flex items-center gap-2 w-auto flex-shrink-0"
         >
           <LogOut className="h-4 w-4" />
           Se déconnecter
@@ -115,6 +116,7 @@ const Admin = () => {
         onOpenChange={setSidebarOpen}
         onTabSelect={setCurrentTab}
         activeTab={currentTab}
+        onLogout={handleLogout}
       />
       <div className="max-w-full md:max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
         {/* Hide shadcn Tabs on mobile ⟶ use our custom tab switching logic */}

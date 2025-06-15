@@ -1,14 +1,14 @@
 
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 type AdminSidebarProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTabSelect: (tab: string) => void;
   activeTab: string;
+  onLogout: () => void;
 };
 
 const tabs = [
@@ -20,11 +20,11 @@ const tabs = [
   { value: "settings", label: "Paramètres" },
 ];
 
-export function AdminSidebar({ open, onOpenChange, onTabSelect, activeTab }: AdminSidebarProps) {
+export function AdminSidebar({ open, onOpenChange, onTabSelect, activeTab, onLogout }: AdminSidebarProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 max-w-xs w-[85vw] bg-white">
-        <nav className="flex flex-col divide-y divide-gray-100">
+      <DialogContent className="p-0 max-w-xs w-[85vw] bg-white flex flex-col h-auto max-h-[85vh]">
+        <nav className="flex-1 flex flex-col divide-y divide-gray-100 overflow-y-auto">
           {tabs.map(tab => (
             <button
               key={tab.value}
@@ -42,6 +42,19 @@ export function AdminSidebar({ open, onOpenChange, onTabSelect, activeTab }: Adm
             </button>
           ))}
         </nav>
+        <div className="mt-auto p-4 border-t border-gray-100">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              onLogout();
+              onOpenChange(false);
+            }}
+          >
+            <LogOut />
+            <span>Se déconnecter</span>
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
