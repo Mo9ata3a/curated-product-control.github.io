@@ -18,10 +18,12 @@ export const ProductTableHeader = ({ onAddProduct, columnVisibility, onColumnVis
         <p className="text-gray-600">Gérez votre catalogue de produits</p>
       </div>
       <div className="flex items-center gap-2">
-        <ProductTableColumnToggle 
-            columnVisibility={columnVisibility}
-            onColumnVisibilityChange={onColumnVisibilityChange}
-        />
+        <div className="hidden md:block">
+            <ProductTableColumnToggle 
+                columnVisibility={columnVisibility}
+                onColumnVisibilityChange={onColumnVisibilityChange}
+            />
+        </div>
         <Button 
           onClick={onAddProduct}
           className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
@@ -33,4 +35,3 @@ export const ProductTableHeader = ({ onAddProduct, columnVisibility, onColumnVis
     </div>
   );
 };
-
