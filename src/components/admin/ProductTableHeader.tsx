@@ -1,16 +1,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { ProductTableColumnToggle, ColumnVisibilityState } from './ProductTableColumnToggle';
-import * as React from "react";
 
 interface ProductTableHeaderProps {
   onAddProduct: () => void;
-  columnVisibility: ColumnVisibilityState;
-  onColumnVisibilityChange: React.Dispatch<React.SetStateAction<ColumnVisibilityState>>;
 }
 
-export const ProductTableHeader = ({ onAddProduct, columnVisibility, onColumnVisibilityChange }: ProductTableHeaderProps) => {
+export const ProductTableHeader = ({ onAddProduct }: ProductTableHeaderProps) => {
   return (
     <div className="flex justify-between items-center mb-6">
       <div>
@@ -18,10 +14,6 @@ export const ProductTableHeader = ({ onAddProduct, columnVisibility, onColumnVis
         <p className="text-gray-600">Gérez votre catalogue de produits</p>
       </div>
       <div className="flex items-center gap-2">
-        <ProductTableColumnToggle 
-            columnVisibility={columnVisibility}
-            onColumnVisibilityChange={onColumnVisibilityChange}
-        />
         <Button 
           onClick={onAddProduct}
           className="bg-green-600 hover:bg-green-700 flex items-center gap-2"

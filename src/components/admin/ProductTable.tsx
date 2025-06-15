@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -18,24 +17,40 @@ import { ProductTableHeaderRow } from "./ProductTableHeaderRow";
 import { ProductTableRow } from "./ProductTableRow";
 import { ProductTablePagination } from "./ProductTablePagination";
 import { ProductTableDialogs } from "./ProductTableDialogs";
-import { ColumnVisibilityState } from "./ProductTableColumnToggle";
+
+// Re-define a simplified type here, as the original file is deleted.
+type ColumnVisibilityState = {
+  [key: string]: boolean;
+};
 
 const PAGE_SIZE = 10;
 
 const ProductTable = ({
   searchTerm,
   onActionSuccess,
-  columnVisibility,
 }: {
   searchTerm: string;
   onActionSuccess: () => void;
-  columnVisibility: ColumnVisibilityState;
 }) => {
   const [page, setPage] = useState(1);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  
+  // Hardcode all columns to be visible to fix the issue
+  const columnVisibility: ColumnVisibilityState = {
+    name: true,
+    marque: true,
+    categorie: true,
+    prix: true,
+    status: true,
+    ban: true,
+    globalcategory: true,
+    article: true,
+    namebic: true,
+    created_at: true,
+  };
 
   useEffect(() => {
     setPage(1);

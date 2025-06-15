@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import BignosTable from '@/components/admin/bignos/BignosTable';
@@ -20,7 +19,6 @@ import { toast } from "@/hooks/use-toast";
 import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
 import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
 import { validateSearchTerm } from '@/lib/validation';
-import { productColumnsConfig, ColumnVisibilityState } from '@/components/admin/ProductTableColumnToggle';
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -29,14 +27,6 @@ const Admin = () => {
   const [isAddProductDialogOpen, setIsAddProductDialogOpen] = useState(false);
   const [isAddBignoDialogOpen, setIsAddBignoDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-
-  const [productColumnVisibility, setProductColumnVisibility] = useState<ColumnVisibilityState>(() => {
-    const initialState: Partial<ColumnVisibilityState> = {};
-    for (const column of productColumnsConfig) {
-        initialState[column.id] = true;
-    }
-    return initialState as ColumnVisibilityState;
-  });
 
   const handleProductActionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -115,8 +105,6 @@ const Admin = () => {
           <TabsContent value="products" className="space-y-6">
             <ProductTableHeader
               onAddProduct={() => setIsAddProductDialogOpen(true)}
-              columnVisibility={productColumnVisibility}
-              onColumnVisibilityChange={setProductColumnVisibility}
             />
             
             <div className="flex items-center space-x-4 mb-6">
@@ -133,7 +121,6 @@ const Admin = () => {
             <ProductTable 
               searchTerm={productSearchTerm}
               onActionSuccess={handleProductActionSuccess}
-              columnVisibility={productColumnVisibility}
             />
           </TabsContent>
 
