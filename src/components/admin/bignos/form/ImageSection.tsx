@@ -34,19 +34,6 @@ export const ImageSection = ({
         {errors.photo_url && (
           <p className="text-sm text-red-500">{errors.photo_url.message}</p>
         )}
-        {photoUrl && (
-          <div className="mt-2">
-            <img 
-              src={photoUrl} 
-              alt="Aperçu" 
-              className="w-32 h-32 object-cover rounded-lg border"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
-            />
-          </div>
-        )}
       </div>
 
       {/* Upload d'image */}
