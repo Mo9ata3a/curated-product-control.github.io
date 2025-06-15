@@ -1,4 +1,3 @@
-
 import * as z from "zod";
 
 // Liste blanche de domaines autorisés pour les URLs d'images
@@ -20,7 +19,7 @@ const ALLOWED_IMAGE_DOMAINS = [
   'imgur.com'
 ];
 
-// Schéma de validation pour les URLs d'images - AVEC validation stricte
+// Schéma de validation pour les URLs d'images - SANS validation stricte
 export const imageUrlSchema = z.string()
   .optional()
   .refine((url) => {
@@ -28,23 +27,13 @@ export const imageUrlSchema = z.string()
     
     // Vérifier que c'est une URL valide
     try {
-      const urlObj = new URL(url);
-      
-      // Vérifier le protocole (uniquement https)
-      if (urlObj.protocol !== 'https:') {
-        return false;
-      }
-      
-      // Vérifier le domaine contre la liste blanche
-      const domain = urlObj.hostname.toLowerCase();
-      return ALLOWED_IMAGE_DOMAINS.some(allowedDomain => 
-        domain === allowedDomain || domain.endsWith('.' + allowedDomain)
-      );
+      new URL(url);
+      return true;
     } catch {
       return false;
     }
   }, { 
-    message: "URL d'image non autorisée. Utilisez uniquement des domaines de confiance avec HTTPS." 
+    message: "URL d'image invalide" 
   });
 
 // Schéma de validation pour les prix - avec nettoyage des espaces

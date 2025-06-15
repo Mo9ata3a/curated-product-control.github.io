@@ -247,15 +247,40 @@ export const SecureProductEditForm = ({
           </div>
         </div>
 
+        {/* URL d'image */}
+        <div className="space-y-2">
+          <Label htmlFor="photo_url">URL de l'image</Label>
+          <Input
+            id="photo_url"
+            value={formData.photo_url}
+            onChange={(e) => handleInputChange("photo_url", e.target.value)}
+            placeholder="https://example.com/image.jpg"
+            type="url"
+          />
+          {validationErrors.photo_url && (
+            <p className="text-red-500 text-sm">{validationErrors.photo_url}</p>
+          )}
+          {formData.photo_url && (
+            <div className="mt-2">
+              <img 
+                src={formData.photo_url} 
+                alt="Aperçu" 
+                className="w-32 h-32 object-cover rounded-lg border"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+        </div>
+
         <div className="space-y-2">
           <ImageUpload
             currentUrl={formData.photo_url}
             onImageUpload={handleImageUpload}
             disabled={isPending}
           />
-          {validationErrors.photo_url && (
-            <p className="text-red-500 text-sm">{validationErrors.photo_url}</p>
-          )}
         </div>
       </div>
 

@@ -220,6 +220,33 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
             </div>
           </div>
 
+          {/* URL d'image */}
+          <div className="space-y-2">
+            <Label htmlFor="photo_url">URL de l'image</Label>
+            <Input
+              id="photo_url"
+              {...register("photo_url")}
+              placeholder="https://example.com/image.jpg"
+              type="url"
+            />
+            {errors.photo_url && (
+              <p className="text-sm text-red-500">{errors.photo_url.message}</p>
+            )}
+            {photoUrl && (
+              <div className="mt-2">
+                <img 
+                  src={photoUrl} 
+                  alt="Aperçu" 
+                  className="w-32 h-32 object-cover rounded-lg border"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Upload d'image */}
           <div className="md:col-span-2">
             <ImageUpload
@@ -227,9 +254,6 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
               onImageUpload={handleImageUpload}
               disabled={isSubmitting}
             />
-            {errors.photo_url && (
-              <p className="text-sm text-red-500 mt-2">{errors.photo_url.message}</p>
-            )}
           </div>
 
           {/* Champs de texte longs */}
