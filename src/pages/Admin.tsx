@@ -22,7 +22,6 @@ import { validateSearchTerm } from '@/lib/validation';
 import { productColumnsConfig, ColumnVisibilityState } from '@/components/admin/ProductTableColumnToggle';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { AdminSidebar, AdminHamburger } from "@/components/admin/AdminSidebar";
-import { useMediaQuery } from "react-responsive";
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
