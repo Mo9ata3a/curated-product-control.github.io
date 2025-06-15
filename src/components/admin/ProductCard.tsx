@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,8 +42,8 @@ export const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => 
             </div>
             <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Ban</span>
-                <Badge variant={product.ban ? "destructive" : "secondary"} className="px-2 py-0.5 text-xs">
-                    {product.ban ? "Banni" : "OK"}
+                <Badge variant={!product.ban ? "success" : "destructive"} className="px-2 py-0.5 text-xs">
+                    {!product.ban ? "Non banni" : "Banni"}
                 </Badge>
             </div>
             <div className="flex justify-between items-center text-sm">

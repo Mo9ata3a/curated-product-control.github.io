@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -46,8 +45,8 @@ export const ProductTableRow = ({ product, onEdit, onDelete, columnVisibility }:
         </div>
       </TableCell>}
       {columnVisibility.ban && <TableCell>
-        <Badge variant={product.ban ? "destructive" : "secondary"}>
-          {product.ban ? "Banni" : "OK"}
+        <Badge variant={!product.ban ? "success" : "destructive"}>
+          {!product.ban ? "Non banni" : "Banni"}
         </Badge>
       </TableCell>}
       {columnVisibility.globalcategory && <TableCell className="max-w-[120px] truncate">
