@@ -29,22 +29,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('🔍 Checking admin status for user:', userId);
       
-      // Utiliser la fonction RPC is_admin qui contourne les politiques RLS
-      const { data, error } = await supabase
+      // Méthode 1: Essayer la fonction RPC is_admin
+      const { data: rpcData, error: rpcError } = await supabase
         .rpc('is_admin', { p_user_id: userId });
       
-      console.log('🔍 RPC is_admin result - data:', data, 'error:', error);
+      console.log('🔍 RPC is_admin result - data:', rpcData, 'error:', rpcError);
       
-      if (error) {
-        console.error('❌ Error checking admin status:', error);
+      if (!rpcError && rpcData !== null) {
+        const adminStatus = !!rpcData;
+        console.log('✅ Admin status from RPC:', adminStatus);
+        setIsAdmin(adminStatus);
+        return adminStatus;
+      }
+      
+      // Méthode 2: Fallback - Interroger directement la table admins
+      console.log('⚠️ RPC failed, trying direct query...');
+      const { data: directData, error: directError } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', userId)
+        .single();
+      
+      console.log('🔍 Direct query result - data:', directData, 'error:', directError);
+      
+      if (directError && directError.code !== 'PGRST116') {
+        // PGRST116 = pas de résultat trouvé, ce qui est normal si l'utilisateur n'est pas admin
+        console.error('❌ Error in direct query:', directError);
         setIsAdmin(false);
         return false;
       }
       
-      const adminStatus = !!data;
-      console.log('✅ Admin status determined:', adminStatus);
+      const adminStatus = !!directData;
+      console.log('✅ Admin status from direct query:', adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
+      
     } catch (error) {
       console.error('💥 Exception during admin check:', error);
       setIsAdmin(false);
