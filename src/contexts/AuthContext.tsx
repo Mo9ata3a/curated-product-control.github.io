@@ -27,42 +27,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      console.log('Starting admin check for user:', userId);
-      
-      // D'abord essayer avec la fonction RPC is_admin
-      const { data: rpcData, error: rpcError } = await supabase
+      // Utiliser la fonction RPC is_admin qui contourne les politiques RLS
+      const { data, error } = await supabase
         .rpc('is_admin', { p_user_id: userId });
       
-      console.log('RPC call completed - data:', rpcData);
-      console.log('RPC call completed - error:', rpcError);
-      
-      if (rpcError) {
-        console.error('RPC call failed, trying direct query:', rpcError);
-        
-        // Fallback: requête directe à la table admins
-        const { data: directData, error: directError } = await supabase
-          .from('admins')
-          .select('user_id')
-          .eq('user_id', userId)
-          .maybeSingle();
-        
-        console.log('Direct query completed - data:', directData);
-        console.log('Direct query completed - error:', directError);
-        
-        if (directError) {
-          console.error('Direct query also failed:', directError);
-          setIsAdmin(false);
-          return false;
-        }
-        
-        const adminStatus = !!directData;
-        console.log('Admin status from direct query:', adminStatus);
-        setIsAdmin(adminStatus);
-        return adminStatus;
+      if (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+        return false;
       }
       
-      const adminStatus = !!rpcData;
-      console.log('Final admin status result:', adminStatus);
+      const adminStatus = !!data;
       setIsAdmin(adminStatus);
       return adminStatus;
     } catch (error) {
@@ -89,15 +64,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let mounted = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
-      
       if (!mounted) return;
       
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        console.log('User found, checking admin status...');
         try {
           await checkAdminStatus(session.user.id);
         } catch (error) {
@@ -105,19 +77,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (mounted) setIsAdmin(false);
         }
       } else {
-        console.log('No user, setting isAdmin to false');
         if (mounted) setIsAdmin(false);
       }
       
       if (mounted) {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     });
 
     const getInitialSession = async () => {
       try {
-        console.log('Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
@@ -128,12 +97,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        console.log('Initial session:', session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          console.log('Initial session has user, checking admin...');
           try {
             await checkAdminStatus(session.user.id);
           } catch (error) {
@@ -141,7 +108,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (mounted) setIsAdmin(false);
           }
         } else {
-          console.log('No initial session user');
           if (mounted) setIsAdmin(false);
         }
       } catch (error) {
@@ -149,7 +115,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (mounted) setIsAdmin(false);
       } finally {
         if (mounted) {
-          console.log('Initial session check complete, setting loading to false');
           setLoading(false);
         }
       }
