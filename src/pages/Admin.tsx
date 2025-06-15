@@ -21,6 +21,8 @@ import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
 import { validateSearchTerm } from '@/lib/validation';
 import { productColumnsConfig, ColumnVisibilityState } from '@/components/admin/ProductTableColumnToggle';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { AdminSidebar, AdminHamburger } from "@/components/admin/AdminSidebar";
+import { useMediaQuery } from "react-responsive";
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -37,6 +39,12 @@ const Admin = () => {
     }
     return initialState as ColumnVisibilityState;
   });
+
+  const [currentTab, setCurrentTab] = useState("products");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Detect mobile
+  const isMobile = window.innerWidth < 768;
 
   const handleProductActionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -83,128 +91,160 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 px-1 sm:px-3 md:py-8">
-      <div className="max-w-full md:max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
-        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
+      {/* Mobile Hamburger + Sidebar */}
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <div className="flex items-center">
+          <AdminHamburger onClick={() => setSidebarOpen(true)} />
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Administration</h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Gestion sécurisée des produits, bignos et contributions</p>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
+              Gestion sécurisée des produits, bignos et contributions
+            </p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="flex items-center gap-2 w-full md:w-auto"
-          >
-            <LogOut className="h-4 w-4" />
-            Se déconnecter
-          </Button>
         </div>
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="flex items-center gap-2 w-auto"
+        >
+          <LogOut className="h-4 w-4" />
+          Se déconnecter
+        </Button>
+      </div>
+      <AdminSidebar
+        open={sidebarOpen}
+        onOpenChange={setSidebarOpen}
+        onTabSelect={setCurrentTab}
+        activeTab={currentTab}
+      />
+      <div className="max-w-full md:max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+        {/* Hide shadcn Tabs on mobile ⟶ use our custom tab switching logic */}
+        <div className="md:block hidden">
+          <Tabs defaultValue="products" value={currentTab} onValueChange={setCurrentTab} className="w-full">
+            <ScrollArea className="w-full whitespace-nowrap md:mb-6">
+              <TabsList>
+                <TabsTrigger value="products">Produits</TabsTrigger>
+                <TabsTrigger value="bignos">Bignos</TabsTrigger>
+                <TabsTrigger value="contributions">Contributions</TabsTrigger>
+                <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+                <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
+                <TabsTrigger value="settings">Paramètres</TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
 
-        {/* ENCAPSULER TABS */}
-        <Tabs defaultValue="products" className="w-full">
-          <ScrollArea className="w-full whitespace-nowrap md:mb-6">
-            <TabsList>
-              <TabsTrigger value="products">Produits</TabsTrigger>
-              <TabsTrigger value="bignos">Bignos</TabsTrigger>
-              <TabsTrigger value="contributions">Contributions</TabsTrigger>
-              <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-              <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
-              <TabsTrigger value="settings">Paramètres</TabsTrigger>
-            </TabsList>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-        
-          <TabsContent value="products" className="space-y-4 sm:space-y-6">
-            <ProductTableHeader
-              onAddProduct={() => setIsAddProductDialogOpen(true)}
-              columnVisibility={productColumnVisibility}
-              onColumnVisibilityChange={setProductColumnVisibility}
-            />
-            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-              <div className="relative w-full max-w-full sm:max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Rechercher des produits..."
-                  value={productSearchTerm}
-                  onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))}
-                  className="pl-10"
-                />
+            <TabsContent value="products">{currentTab === "products" && (
+              <>
+                <ProductTableHeader onAddProduct={() => setIsAddProductDialogOpen(true)} columnVisibility={productColumnVisibility} onColumnVisibilityChange={setProductColumnVisibility} />
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
+                  <div className="relative w-full max-w-full sm:max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input placeholder="Rechercher des produits..." value={productSearchTerm} onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))} className="pl-10" />
+                  </div>
+                </div>
+                <div className="w-full overflow-x-auto">
+                  <ProductTable searchTerm={productSearchTerm} onActionSuccess={handleProductActionSuccess} columnVisibility={productColumnVisibility} />
+                </div>
+              </>
+            )}</TabsContent>
+            <TabsContent value="bignos">{currentTab === "bignos" && (
+              <>
+                <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
+                  <div className="relative w-full max-w-full sm:max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input placeholder="Rechercher des bignos..." value={bignoSearchTerm} onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))} className="pl-10" />
+                  </div>
+                </div>
+                <div className="w-full overflow-x-auto">
+                  <BignosTable searchTerm={bignoSearchTerm} onActionSuccess={handleBignoActionSuccess} />
+                </div>
+              </>
+            )}</TabsContent>
+            <TabsContent value="contributions">{currentTab === "contributions" && (
+              <div className="w-full overflow-x-auto">
+                <ContributionsTable />
               </div>
-            </div>
-            <div className="w-full overflow-x-auto">
-              <ProductTable 
-                searchTerm={productSearchTerm}
-                onActionSuccess={handleProductActionSuccess}
-                columnVisibility={productColumnVisibility}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="bignos" className="space-y-4 sm:space-y-6">
-            <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
-            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-              <div className="relative w-full max-w-full sm:max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Rechercher des bignos..."
-                  value={bignoSearchTerm}
-                  onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))}
-                  className="pl-10"
-                />
+            )}</TabsContent>
+            <TabsContent value="users">{currentTab === "users" && (
+              <div className="w-full overflow-x-auto">
+                <UserManagement />
               </div>
-            </div>
-            <div className="w-full overflow-x-auto">
-              <BignosTable 
-                searchTerm={bignoSearchTerm}
-                onActionSuccess={handleBignoActionSuccess}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="contributions" className="space-y-4 sm:space-y-6">
+            )}</TabsContent>
+            <TabsContent value="audit">{currentTab === "audit" && (
+              <div className="w-full overflow-x-auto">
+                <AuditLogViewer />
+              </div>
+            )}</TabsContent>
+            <TabsContent value="settings">{currentTab === "settings" && (
+              <AccountSettings />
+            )}</TabsContent>
+          </Tabs>
+        </div>
+        {/* Mobile version (hide tabs list, show content according to currentTab) */}
+        <div className="md:hidden block">
+          {currentTab === "products" && (
+            <>
+              <ProductTableHeader onAddProduct={() => setIsAddProductDialogOpen(true)} columnVisibility={productColumnVisibility} onColumnVisibilityChange={setProductColumnVisibility} />
+              <div className="flex flex-col items-center space-y-2 mb-4">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input placeholder="Rechercher des produits..." value={productSearchTerm} onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))} className="pl-10" />
+                </div>
+              </div>
+              <div className="w-full overflow-x-auto">
+                <ProductTable searchTerm={productSearchTerm} onActionSuccess={handleProductActionSuccess} columnVisibility={productColumnVisibility} />
+              </div>
+            </>
+          )}
+          {currentTab === "bignos" && (
+            <>
+              <BignosTableHeader onAddBigno={() => setIsAddBignoDialogOpen(true)} />
+              <div className="flex flex-col items-center space-y-2 mb-4">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input placeholder="Rechercher des bignos..." value={bignoSearchTerm} onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))} className="pl-10" />
+                </div>
+              </div>
+              <div className="w-full overflow-x-auto">
+                <BignosTable searchTerm={bignoSearchTerm} onActionSuccess={handleBignoActionSuccess} />
+              </div>
+            </>
+          )}
+          {currentTab === "contributions" && (
             <div className="w-full overflow-x-auto">
               <ContributionsTable />
             </div>
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-4 sm:space-y-6">
+          )}
+          {currentTab === "users" && (
             <div className="w-full overflow-x-auto">
               <UserManagement />
             </div>
-          </TabsContent>
-
-          <TabsContent value="audit" className="space-y-4 sm:space-y-6">
+          )}
+          {currentTab === "audit" && (
             <div className="w-full overflow-x-auto">
               <AuditLogViewer />
             </div>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
+          )}
+          {currentTab === "settings" && (
             <AccountSettings />
-          </TabsContent>
-        </Tabs>
-
-        {/* Dialogs for Add Product and Add Bigno */}
+          )}
+        </div>
+        {/* Dialogs pour l'ajout */}
         <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Ajouter un nouveau produit</DialogTitle>
             </DialogHeader>
-            <SecureProductForm
-              onSuccess={handleAddProductSuccess}
-              onCancel={() => setIsAddProductDialogOpen(false)}
-            />
+            <SecureProductForm onSuccess={handleAddProductSuccess} onCancel={() => setIsAddProductDialogOpen(false)} />
           </DialogContent>
         </Dialog>
-
         <Dialog open={isAddBignoDialogOpen} onOpenChange={setIsAddBignoDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Ajouter un nouveau bigno</DialogTitle>
             </DialogHeader>
-            <SecureBignosForm
-              onSuccess={handleAddBignoSuccess}
-              onCancel={() => setIsAddBignoDialogOpen(false)}
-            />
+            <SecureBignosForm onSuccess={handleAddBignoSuccess} onCancel={() => setIsAddBignoDialogOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>
