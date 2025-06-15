@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import { ContributionsTable } from '@/components/admin/ContributionsTable';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
+import AccountSettings from '@/components/admin/AccountSettings';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ const Admin = () => {
             <TabsTrigger value="products">Produits</TabsTrigger>
             <TabsTrigger value="contributions">Contributions</TabsTrigger>
             <TabsTrigger value="audit">Journal d'audit</TabsTrigger>
+            <TabsTrigger value="settings">Paramètres</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
@@ -99,6 +101,10 @@ const Admin = () => {
 
           <TabsContent value="audit" className="space-y-6">
             <AuditLogViewer />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <AccountSettings />
           </TabsContent>
         </Tabs>
       </div>
