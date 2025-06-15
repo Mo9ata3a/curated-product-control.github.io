@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,8 +41,7 @@ const BignosTable = ({
       .select("*", { count: "exact" });
 
     if (search) {
-      const cleanedSearch = search.trim();
-      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%,article.ilike.%${cleanedSearch}%,globalcategory.ilike.%${cleanedSearch}%,namebic.ilike.%${cleanedSearch}%`);
+      query = query.or(`name.ilike.%${search}%,marque.ilike.%${search}%,categorie.ilike.%${search}%,article.ilike.%${search}%,globalcategory.ilike.%${search}%,namebic.ilike.%${search}%,categorieold.ilike.%${search}%`);
     }
 
     const { data, error, count } = await query

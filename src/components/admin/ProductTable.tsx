@@ -46,8 +46,7 @@ const ProductTable = ({
       .select("*", { count: "exact" });
 
     if (search) {
-      const cleanedSearch = search.trim();
-      query = query.or(`name.ilike.%${cleanedSearch}%,marque.ilike.%${cleanedSearch}%,categorie.ilike.%${cleanedSearch}%,article.ilike.%${cleanedSearch}%,eng.ilike.%${cleanedSearch}%,globalcategory.ilike.%${cleanedSearch}%,namebic.ilike.%${cleanedSearch}%`);
+      query = query.or(`name.ilike.%${search}%,marque.ilike.%${search}%,categorie.ilike.%${search}%,article.ilike.%${search}%,eng.ilike.%${search}%,globalcategory.ilike.%${search}%,namebic.ilike.%${search}%`);
     }
 
     const { data, error, count } = await query

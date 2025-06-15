@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import ProductTable from '@/components/admin/ProductTable';
 import BignosTable from '@/components/admin/bignos/BignosTable';
@@ -19,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
 import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
 import { BignosTableHeader } from '@/components/admin/bignos/BignosTableHeader';
+import { validateSearchTerm } from '@/lib/validation';
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -111,7 +111,7 @@ const Admin = () => {
                 <Input
                   placeholder="Rechercher des produits..."
                   value={productSearchTerm}
-                  onChange={(e) => setProductSearchTerm(e.target.value)}
+                  onChange={(e) => setProductSearchTerm(validateSearchTerm(e.target.value))}
                   className="pl-10"
                 />
               </div>
@@ -131,7 +131,7 @@ const Admin = () => {
                 <Input
                   placeholder="Rechercher des bignos..."
                   value={bignoSearchTerm}
-                  onChange={(e) => setBignoSearchTerm(e.target.value)}
+                  onChange={(e) => setBignoSearchTerm(validateSearchTerm(e.target.value))}
                   className="pl-10"
                 />
               </div>
