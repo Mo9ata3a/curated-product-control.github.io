@@ -1,20 +1,7 @@
-
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface ProductFormData {
-  name: string;
-  marque: string;
-  categorie: string;
-  prix: string;
-  photo_url: string;
-  eng: string;
-  article: string;
-  globalcategory: string;
-  namebic: string;
-  categorieold: string;
-}
+import { ProductFormData } from "./types";
 
 interface BasicInfoFieldsProps {
   register: UseFormRegister<ProductFormData>;

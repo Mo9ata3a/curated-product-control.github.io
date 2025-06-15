@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +20,7 @@ import {
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ImageSection } from "./form/ImageSection";
 import { TextFields } from "./form/TextFields";
+import { ProductFormData } from "./form/types";
 
 // Schéma de validation complet pour le formulaire
 const productSchema = z.object({
