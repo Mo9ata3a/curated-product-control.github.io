@@ -27,17 +27,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      console.log('Checking admin status for user:', userId);
+      console.log('Starting admin check for user:', userId);
       
-      // Utiliser maybeSingle() au lieu de single() pour éviter les erreurs
       const { data, error } = await supabase
         .from('admins')
         .select('user_id')
         .eq('user_id', userId)
         .maybeSingle();
       
-      console.log('Admin check - data:', data);
-      console.log('Admin check - error:', error);
+      console.log('Admin check completed - data:', data);
+      console.log('Admin check completed - error:', error);
       
       if (error) {
         console.error('Error checking admin status:', error);
@@ -46,11 +45,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       const adminStatus = !!data;
-      console.log('Admin status result:', adminStatus);
+      console.log('Final admin status result:', adminStatus);
       setIsAdmin(adminStatus);
       return adminStatus;
     } catch (error) {
-      console.error('Exception checking admin status:', error);
+      console.error('Exception during admin check:', error);
       setIsAdmin(false);
       return false;
     }
@@ -72,7 +71,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Configuration de l'écouteur d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       
@@ -82,6 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        console.log('User found, checking admin status...');
         try {
           await checkAdminStatus(session.user.id);
         } catch (error) {
@@ -89,15 +88,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (mounted) setIsAdmin(false);
         }
       } else {
+        console.log('No user, setting isAdmin to false');
         if (mounted) setIsAdmin(false);
       }
       
-      if (mounted) setLoading(false);
+      if (mounted) {
+        console.log('Setting loading to false');
+        setLoading(false);
+      }
     });
 
-    // Vérifier la session initiale
     const getInitialSession = async () => {
       try {
+        console.log('Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
@@ -113,6 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('Initial session has user, checking admin...');
           try {
             await checkAdminStatus(session.user.id);
           } catch (error) {
@@ -120,13 +124,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (mounted) setIsAdmin(false);
           }
         } else {
+          console.log('No initial session user');
           if (mounted) setIsAdmin(false);
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
         if (mounted) setIsAdmin(false);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          console.log('Initial session check complete, setting loading to false');
+          setLoading(false);
+        }
       }
     };
 
