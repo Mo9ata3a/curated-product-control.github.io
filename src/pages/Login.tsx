@@ -2,14 +2,13 @@
 import LoginForm from "@/components/auth/LoginForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 const LoginPage = () => {
-  const { session, isAdmin, loading, user } = useAuth();
+  const { session, isAdmin, loading, user, signOut } = useAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
   };
 
   if (loading) {
