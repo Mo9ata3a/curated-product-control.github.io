@@ -1,23 +1,25 @@
 
-import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-export const ProductTableHeader = () => {
+interface ProductTableHeaderProps {
+  onAddProduct: () => void;
+}
+
+export const ProductTableHeader = ({ onAddProduct }: ProductTableHeaderProps) => {
   return (
-    <TableHeader>
-      <TableRow>
-        <TableHead className="w-16 px-6">Image</TableHead>
-        <TableHead className="min-w-[200px]">Nom</TableHead>
-        <TableHead className="min-w-[120px]">Marque</TableHead>
-        <TableHead className="min-w-[120px]">Catégorie</TableHead>
-        <TableHead className="min-w-[100px]">Prix</TableHead>
-        <TableHead className="min-w-[80px]">Statut</TableHead>
-        <TableHead className="min-w-[60px]">Ban</TableHead>
-        <TableHead className="min-w-[120px]">Global Cat.</TableHead>
-        <TableHead className="min-w-[100px]">Article</TableHead>
-        <TableHead className="min-w-[100px]">Nom BIC</TableHead>
-        <TableHead className="min-w-[100px]">Créé le</TableHead>
-        <TableHead className="text-right px-6 min-w-[120px]">Actions</TableHead>
-      </TableRow>
-    </TableHeader>
+    <div className="flex justify-between items-center mb-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Gestion des produits</h2>
+        <p className="text-gray-600">Gérez votre catalogue de produits</p>
+      </div>
+      <Button 
+        onClick={onAddProduct}
+        className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+      >
+        <Plus className="h-4 w-4" />
+        Nouveau produit
+      </Button>
+    </div>
   );
 };

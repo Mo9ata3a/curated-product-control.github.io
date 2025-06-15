@@ -5,22 +5,31 @@ import { ContributionsTable } from '@/components/admin/ContributionsTable';
 import { AuditLogViewer } from '@/components/admin/AuditLogViewer';
 import AccountSettings from '@/components/admin/AccountSettings';
 import UserManagement from '@/components/admin/UserManagement';
+import { SecureProductForm } from '@/components/admin/SecureProductForm';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, LogOut } from "lucide-react";
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
+import { ProductTableHeader } from '@/components/admin/ProductTableHeader';
 
 const Admin = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddProductDialogOpen, setIsAddProductDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const handleActionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
+
+  const handleAddProductSuccess = () => {
+    handleActionSuccess();
+    setIsAddProductDialogOpen(false);
   };
 
   const handleLogout = async () => {
@@ -79,6 +88,8 @@ const Admin = () => {
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
+            <ProductTableHeader onAddProduct={() => setIsAddProductDialogOpen(true)} />
+            
             <div className="flex items-center space-x-4 mb-6">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -112,6 +123,19 @@ const Admin = () => {
             <AccountSettings />
           </TabsContent>
         </Tabs>
+
+        {/* Dialog pour ajouter un nouveau produit */}
+        <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Ajouter un nouveau produit</DialogTitle>
+            </DialogHeader>
+            <SecureProductForm
+              onSuccess={handleAddProductSuccess}
+              onCancel={() => setIsAddProductDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
