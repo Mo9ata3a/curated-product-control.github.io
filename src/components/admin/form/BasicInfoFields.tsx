@@ -54,22 +54,18 @@ export const BasicInfoFields = ({ register, errors, control }: BasicInfoFieldsPr
           render={({ field }) => (
             <FormItem>
               <FormLabel>Catégorie *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={categoriesLoading}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
+                    <SelectValue placeholder={categoriesLoading ? "Chargement..." : "Sélectionner une catégorie"} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {categoriesLoading ? (
-                    <SelectItem value="" disabled>Chargement...</SelectItem>
-                  ) : (
-                    categories?.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))
-                  )}
+                  {categories?.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
