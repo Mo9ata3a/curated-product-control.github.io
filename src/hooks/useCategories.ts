@@ -16,9 +16,9 @@ export const useCategories = () => {
         throw error;
       }
 
-      // Extraire les catégories uniques et les trier
+      // Extract unique categories with more robust filtering
       const uniqueCategories = [...new Set(data.map(item => item.categorie))]
-        .filter(Boolean)
+        .filter(category => category && category.trim() !== "") // Filter out null, undefined, and empty/whitespace strings
         .sort();
 
       return uniqueCategories;
