@@ -297,20 +297,20 @@ export const SecureProductEditForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="categorie">Catégorie * ({formData.categorie.length}/100)</Label>
-            <Select value={formData.categorie} onValueChange={(value) => handleInputChange("categorie", value)}>
+            <Select 
+              value={formData.categorie} 
+              onValueChange={(value) => handleInputChange("categorie", value)}
+              disabled={categoriesLoading}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionner une catégorie" />
+                <SelectValue placeholder={categoriesLoading ? "Chargement..." : "Sélectionner une catégorie"} />
               </SelectTrigger>
               <SelectContent>
-                {categoriesLoading ? (
-                  <SelectItem value="" disabled>Chargement...</SelectItem>
-                ) : (
-                  categories?.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))
-                )}
+                {categories?.filter(category => category && category.trim() !== "").map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {validationErrors.categorie && (
