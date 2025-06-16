@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { ImageUpload } from "./ImageUpload";
+import { useCategories } from "@/hooks/useCategories";
 import { 
   productNameSchema, 
   brandSchema, 
@@ -49,6 +51,7 @@ export const SecureProductEditForm = ({
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
   const queryClient = useQueryClient();
 
@@ -294,13 +297,22 @@ export const SecureProductEditForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="categorie">Catégorie * ({formData.categorie.length}/100)</Label>
-            <Input
-              id="categorie"
-              value={formData.categorie}
-              onChange={(e) => handleInputChange("categorie", e.target.value)}
-              maxLength={100}
-              required
-            />
+            <Select value={formData.categorie} onValueChange={(value) => handleInputChange("categorie", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoriesLoading ? (
+                  <SelectItem value="" disabled>Chargement...</SelectItem>
+                ) : (
+                  categories?.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
             {validationErrors.categorie && (
               <p className="text-red-500 text-sm">{validationErrors.categorie}</p>
             )}

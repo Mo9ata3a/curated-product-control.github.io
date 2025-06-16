@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Form } from "@/components/ui/form";
 import { 
   productNameSchema, 
   brandSchema, 
@@ -46,14 +47,7 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    watch
-  } = useForm<ProductFormData>({
+  const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -68,6 +62,8 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
       categorieold: "",
     },
   });
+
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = form;
 
   // Surveiller l'URL de l'image pour validation en temps réel
   const photoUrl = watch("photo_url");
@@ -158,39 +154,41 @@ export const SecureProductForm = ({ onSuccess, onCancel }: SecureProductFormProp
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <BasicInfoFields register={register} errors={errors} />
-          
-          <ImageSection 
-            register={register} 
-            errors={errors}
-            photoUrl={photoUrl}
-            onImageUpload={handleImageUpload}
-            isSubmitting={isSubmitting}
-          />
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <BasicInfoFields register={register} errors={errors} control={control} />
+            
+            <ImageSection 
+              register={register} 
+              errors={errors}
+              photoUrl={photoUrl}
+              onImageUpload={handleImageUpload}
+              isSubmitting={isSubmitting}
+            />
 
-          {/* Champs de texte longs */}
-          <TextFields register={register} errors={errors} />
+            {/* Champs de texte longs */}
+            <TextFields register={register} errors={errors} />
 
-          {/* Boutons d'action */}
-          <div className="flex justify-end space-x-2 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
-              Annuler
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? "Création..." : "Créer le produit"}
-            </Button>
-          </div>
-        </form>
+            {/* Boutons d'action */}
+            <div className="flex justify-end space-x-2 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSubmitting ? "Création..." : "Créer le produit"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

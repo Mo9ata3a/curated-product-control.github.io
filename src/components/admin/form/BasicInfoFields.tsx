@@ -1,14 +1,21 @@
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+
+import { UseFormRegister, FieldErrors, Control } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { ProductFormData } from "./types";
+import { useCategories } from "@/hooks/useCategories";
 
 interface BasicInfoFieldsProps {
   register: UseFormRegister<ProductFormData>;
   errors: FieldErrors<ProductFormData>;
+  control?: Control<ProductFormData>;
 }
 
-export const BasicInfoFields = ({ register, errors }: BasicInfoFieldsProps) => {
+export const BasicInfoFields = ({ register, errors, control }: BasicInfoFieldsProps) => {
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Nom du produit */}
@@ -40,18 +47,49 @@ export const BasicInfoFields = ({ register, errors }: BasicInfoFieldsProps) => {
       </div>
 
       {/* Catégorie */}
-      <div className="space-y-2">
-        <Label htmlFor="categorie">Catégorie *</Label>
-        <Input
-          id="categorie"
-          {...register("categorie")}
-          placeholder="Catégorie"
-          maxLength={100}
+      {control ? (
+        <FormField
+          control={control}
+          name="categorie"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Catégorie *</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une catégorie" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categoriesLoading ? (
+                    <SelectItem value="" disabled>Chargement...</SelectItem>
+                  ) : (
+                    categories?.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.categorie && (
-          <p className="text-sm text-red-500">{errors.categorie.message}</p>
-        )}
-      </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="categorie">Catégorie *</Label>
+          <Input
+            id="categorie"
+            {...register("categorie")}
+            placeholder="Catégorie"
+            maxLength={100}
+          />
+          {errors.categorie && (
+            <p className="text-sm text-red-500">{errors.categorie.message}</p>
+          )}
+        </div>
+      )}
 
       {/* Prix */}
       <div className="space-y-2">
